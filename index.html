@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Risk Box</title>
+    <link rel="stylesheet" href="./style.css">
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+
+<html lang="zh-Hant">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Risk Box</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+
+  margin:0;
+
+  padding:0;
+
+  box-sizing:border-box;
+
+}
+
+body{
+
+  font-family:'Noto Sans TC', sans-serif;
+
+  background:#000;
+
+  color:#fff;
+
+  overflow-x:hidden;
+
+}
+
+/* HERO */
+
+.hero{
+
+  height:100vh;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  text-align:center;
+
+  background:linear-gradient(180deg,#000,#050505);
+
+}
+
+.hero h1{
+
+  font-size:3rem;
+
+  letter-spacing:2px;
+
+  opacity:0;
+
+  transform:translateY(20px);
+
+  animation:fadeUp 1.5s ease forwards;
+
+}
+
+.hero p{
+
+  margin-top:20px;
+
+  font-size:1.2rem;
+
+  opacity:.6;
+
+}
+
+.enter{
+
+  margin-top:40px;
+
+  display:inline-block;
+
+  border:1px solid rgba(255,255,255,.4);
+
+  padding:12px 28px;
+
+  cursor:pointer;
+
+  transition:.3s;
+
+}
+
+.enter:hover{
+
+  background:#fff;
+
+  color:#000;
+
+}
+
+/* sections */
+
+.section{
+
+  padding:120px 12%;
+
+  position:relative;
+
+}
+
+.section h2{
+
+  font-size:2rem;
+
+  margin-bottom:30px;
+
+}
+
+.section p{
+
+  line-height:1.8;
+
+  opacity:.8;
+
+  max-width:700px;
+
+}
+
+/* parallax background */
+
+.parallax{
+
+  height:60vh;
+
+  background:url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop') center/cover fixed;
+
+}
+
+/* data flow animation */
+
+.flow{
+
+  display:flex;
+
+  gap:10px;
+
+  margin-top:40px;
+
+}
+
+.bar{
+
+  width:6px;
+
+  height:60px;
+
+  background:#0ff;
+
+  animation:flow 1s infinite ease-in-out;
+
+}
+
+.bar:nth-child(2){animation-delay:.1s}
+
+.bar:nth-child(3){animation-delay:.2s}
+
+.bar:nth-child(4){animation-delay:.3s}
+
+.bar:nth-child(5){animation-delay:.4s}
+
+/* grid */
+
+.grid{
+
+  display:grid;
+
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+  gap:30px;
+
+  margin-top:40px;
+
+}
+
+.card{
+
+  border:1px solid rgba(255,255,255,.08);
+
+  padding:25px;
+
+  border-radius:12px;
+
+  background:rgba(255,255,255,.02);
+
+  backdrop-filter: blur(10px);
+
+}
+
+/* table */
+
+table{
+
+  width:100%;
+
+  border-collapse:collapse;
+
+  margin-top:30px;
+
+}
+
+td{
+
+  border-bottom:1px solid rgba(255,255,255,.1);
+
+  padding:12px 0;
+
+  opacity:.8;
+
+}
+
+/* footer */
+
+.footer{
+
+  text-align:center;
+
+  padding:80px 10%;
+
+  opacity:.6;
+
+}
+
+/* animations */
+
+@keyframes fadeUp{
+
+  to{
+
+    opacity:1;
+
+    transform:translateY(0);
+
+  }
+
+}
+
+@keyframes flow{
+
+  0%,100%{opacity:.2;height:20px}
+
+  50%{opacity:1;height:60px}
+
+}
+
+.fade{
+
+  opacity:0;
+
+  transform:translateY(40px);
+
+  transition:1s;
+
+}
+
+.fade.visible{
+
+  opacity:1;
+
+  transform:translateY(0);
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- HERO -->
+
+<section class="hero">
+
+  <div>
+
+    <h1>風險發生的那一秒<br>你，看得見嗎？</h1>
+
+    <p>Risk Box 即時風險感知設備</p>
+
+    <div class="enter" onclick="scrollNext()">ENTER</div>
+
+  </div>
+
+</section>
+
+<!-- PROBLEM -->
+
+<section class="section fade">
+
+  <h2>金融世界正在承受秒級風險</h2>
+
+  <p>
+
+  詐騙、洗錢與帳戶盜用行為在毫秒間完成。
+
+  異常模式往往存在於正常交易之中，
+
+  而風險被察覺時，事件早已發生。
+
+  </p>
+
+</section>
+
+<div class="parallax"></div>
+
+<!-- HOW IT WORKS -->
+
+<section class="section fade">
+
+  <h2>讓風險浮現</h2>
+
+  <p>
+
+  Risk Box 即時分析交易行為模式，
+
+  將行為異常轉換為風險權值，
+
+  協助金融機構提前看見潛在風險。
+
+  </p>
+
+  <div class="flow">
+
+    <div class="bar"></div>
+
+    <div class="bar"></div>
+
+    <div class="bar"></div>
+
+    <div class="bar"></div>
+
+    <div class="bar"></div>
+
+  </div>
+
+</section>
+
+<!-- CAPABILITIES -->
+
+<section class="section fade">
+
+  <h2>核心能力</h2>
+
+  <div class="grid">
+
+    <div class="card">即時風險感知</div>
+
+    <div class="card">風險權值化分析</div>
+
+    <div class="card">異常事件浮現</div>
+
+    <div class="card">不干預交易流程</div>
+
+  </div>
+
+</section>
+
+<!-- AI ACCELERATION -->
+
+<section class="section fade">
+
+  <h2>AI 加速運算</h2>
+
+  <p>
+
+  邊緣 AI 即時推論技術，
+
+  支援每秒數千筆交易分析，
+
+  推論延遲低於 10 毫秒，
+
+  無需將敏感資料傳輸至雲端。
+
+  </p>
+
+</section>
+
+<!-- HARDWARE -->
+  
+  <section class="section fade">
+
+  <h2>Risk Box 設備外觀</h2>
+
+  <p>
+
+  工業級網路運算平台設計，
+
+  支援金融機房長時間穩定運作，
+
+  提供高可靠度與高可用部署能力。
+
+  </p>
+
+  <img src="https://advdownload.advantech.com/productfile/PIS/FWA-3034/Product%20-%20Photo(Main)-50/FWA-3034_7_B20221208094445.jpg"
+
+       style="width:100%;max-width:900px;margin-top:40px;border-radius:12px;">
+
+</section>
+
+<section class="section fade">
+
+  <h2>工業級運算平台</h2>
+
+  <table>
+
+    <tr><td>運算能力</td><td>3000+ TPS 即時分析</td></tr>
+
+    <tr><td>AI 加速</td><td>M.2 AI 加速模組</td></tr>
+
+    <tr><td>網路模式</td><td>Transparent Bridge</td></tr>
+
+    <tr><td>LAN Bypass</td><td>支援</td></tr>
+
+    <tr><td>電源</td><td>雙電源備援</td></tr>
+
+    <tr><td>運作</td><td>24/7 穩定運行</td></tr>
+
+  </table>
+
+</section>
+
+<div class="parallax"></div>
+
+<!-- DEPLOY -->
+
+<section class="section fade">
+
+  <h2>簡單導入</h2>
+
+  <p>
+
+  接入核心交易網段，
+
+  即可透明監測資料流，
+
+  不需修改既有系統架構，
+
+  不影響交易效能。
+
+  </p>
+
+</section>
+
+<section class="arch-section">
+  <h2>非侵入式旁聽監測架構</h2>
+  <p class="subtitle">PoC / 沙盒測試 / 初期部署</p>
+
+  <svg viewBox="0 0 800 420" class="arch-svg">
+    
+    <!-- Switch -->
+    <rect x="300" y="40" width="200" height="60" rx="10"/>
+    <text x="400" y="75" text-anchor="middle">核心交換機</text>
+
+    <!-- Core Banking -->
+    <rect x="260" y="280" width="280" height="70" rx="10"/>
+    <text x="400" y="320" text-anchor="middle">核心交易系統</text>
+
+    <!-- Risk Box -->
+    <rect x="580" y="170" width="160" height="60" rx="10"/>
+    <text x="660" y="205" text-anchor="middle">Risk Box</text>
+
+    <!-- main flow -->
+    <line x1="400" y1="100" x2="400" y2="280" class="flow"/>
+    
+    <!-- mirror -->
+    <line x1="500" y1="70" x2="580" y2="170" class="mirror"/>
+    <text x="560" y="110">Mirror / TAP</text>
+
+  </svg>
+
+  <div class="arch-desc">
+    <ul>
+      <li>不影響交易流程與延遲</li>
+      <li>零風險部署，無單點故障</li>
+      <li>即時分析交易行為模式</li>
+      <li>適用 PoC、沙盒測試與初期導入</li>
+    </ul>
+  </div>
+</section>
+  
+  <section class="arch-section">
+  <h2>透明橋接串連架構</h2>
+  <p class="subtitle">SOC整合 / 進階風險控制</p>
+
+  <svg viewBox="0 0 800 460" class="arch-svg">
+
+    <!-- Switch -->
+    <rect x="300" y="40" width="200" height="60" rx="10"/>
+    <text x="400" y="75" text-anchor="middle">核心交換機</text>
+
+    <!-- Risk Box -->
+    <rect x="300" y="180" width="200" height="70" rx="10"/>
+    <text x="400" y="220" text-anchor="middle">Risk Box</text>
+    <text x="400" y="240" text-anchor="middle" class="small">即時風險判斷</text>
+
+    <!-- Core Banking -->
+    <rect x="260" y="330" width="280" height="70" rx="10"/>
+    <text x="400" y="370" text-anchor="middle">核心交易系統</text>
+
+    <!-- SOC -->
+    <rect x="580" y="190" width="160" height="60" rx="10"/>
+    <text x="660" y="225" text-anchor="middle">SOC / SIEM</text>
+
+    <!-- flow -->
+    <line x1="400" y1="100" x2="400" y2="180" class="flow"/>
+    <line x1="400" y1="250" x2="400" y2="330" class="flow"/>
+
+    <!-- SOC link -->
+    <line x1="500" y1="215" x2="580" y2="215" class="mirror"/>
+
+  </svg>
+
+  <div class="arch-desc">
+    <ul>
+      <li>即時風險判斷與策略觸發</li>
+      <li>高風險交易可延遲處理與人工覆核</li>
+      <li>SOC / SIEM 事件聯動通報</li>
+      <li>支援 LAN Bypass 與高可用架構</li>
+    </ul>
+  </div>
+</section>
+  
+  <style>
+body{
+  background:#0b0f14;
+  color:#e8eef6;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto;
+}
+
+.arch-section{
+  max-width:900px;
+  margin:80px auto;
+  text-align:center;
+}
+
+.arch-section h2{
+  font-size:28px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:#9fb3c8;
+  margin-bottom:30px;
+}
+
+.arch-svg rect{
+  fill:#111821;
+  stroke:#2f3e4e;
+  stroke-width:2;
+}
+
+.arch-svg text{
+  fill:#d6e2f0;
+  font-size:14px;
+  font-weight:500;
+}
+
+.arch-svg .small{
+  font-size:12px;
+  fill:#8aa0b6;
+}
+
+.flow{
+  stroke:#00d4ff;
+  stroke-width:3;
+}
+
+.mirror{
+  stroke:#ffb020;
+  stroke-width:3;
+  stroke-dasharray:6 6;
+}
+
+.arch-desc{
+  margin-top:30px;
+  text-align:left;
+  display:inline-block;
+}
+
+.arch-desc li{
+  margin:8px 0;
+  color:#c6d4e1;
+}
+</style>
+  
+  <!-- UI -->
+  
+  <section class="dashboard">
+  <div class="panel">
+    <h3>系統即時狀態</h3>
+    <p>🕒 2026-02-20 21:48</p>
+    <p>⚡ 平均處理速率：<b>3,284</b> 筆 / 秒</p>
+    <p>📊 今日累計交易量：<b>128,493,221筆</b></p>
+    <p class="good">🟢 正常交易佔比：99.982%</p>
+  </div>
+
+  <div class="panel">
+    <h3>當日異常交易統計</h3>
+    <p class="warn">⚠ 異常交易筆數：23,418筆</p>
+    <p>💰 涉及總金額：NT$ 184,220,900</p>
+  </div>
+
+  <div class="panel">
+    <h3>異常風險分佈</h3>
+    <p class="red">🔴 極高風險：312筆</p>
+    <p class="orange">🟠 風險升溫：2,184筆</p>
+    <p class="yellow">🟡 輕度異常：20,922筆</p>
+    <hr>
+    <small>🟠 + 🔴 異常類型 «前三大類型»：<br>
+    異地短時間交易 / 異常時間行為 / 高頻拆單模式</small>
+  </div>
+
+  <div class="panel">
+    <h3>🟠 + 🔴 異常事件處理狀態</h3>
+    <p>🕒 處理作業中：4筆</p>
+    <p>💰 處理中金額：NT$ 880,000</p>
+    <p class="good">✅ 已完成作業：2,492筆</p>
+    <p>💰 已完成處理金額：NT$ 162,880,000</p>
+  </div>
+</section>
+  
+<!-- USE CASES -->
+
+<section class="section fade">
+
+  <h2>應用情境</h2>
+
+  <div class="grid">
+
+    <div class="card">ATM 提領異常偵測</div>
+
+    <div class="card">線上支付詐騙行為辨識</div>
+
+    <div class="card">帳戶盜用風險偵測</div>
+
+    <div class="card">第三方金流異常監測</div>
+
+  </div>
+
+</section>
+
+<!-- RELIABILITY -->
+
+<section class="section fade">
+
+  <h2>可靠性與安全設計</h2>
+
+  <p>
+
+  不儲存交易敏感資料，
+
+  僅輸出風險權值結果。
+
+  支援高可用備援架構，
+
+  設備失效即時通知。
+
+  </p>
+
+</section>
+
+<!-- DECLARATION -->
+
+<section class="section fade">
+
+  <h2>開放架構宣言</h2>
+
+  <p>
+
+  Risk Box 是開放概念架構，
+
+  可以被實作、改良與延伸。
+
+  風險可被看見，
+
+  安全不應被壟斷。
+
+  </p>
+
+</section>
+
+<!-- CONTACT -->
+
+<section class="section fade">
+
+  <h2>合作與聯繫</h2>
+
+  <p>Email：thalese.studio@gmail.com<br>
+
+  Taipei, Taiwan</p>
+
+</section>
+
+<div class="footer">
+
+Risk Box © 2026
+
+</div>
+
+<script>
+
+function scrollNext(){
+
+  window.scrollTo({top: window.innerHeight, behavior:'smooth'});
+
+}
+
+const faders=document.querySelectorAll('.fade');
+
+const appearOptions={
+
+  threshold:0.2
+
+};
+
+const appearOnScroll=new IntersectionObserver(function(entries,observer){
+
+ entries.forEach(entry=>{
+
+   if(!entry.isIntersecting) return;
+
+   entry.target.classList.add('visible');
+
+   observer.unobserve(entry.target);
+
+ });
+
+},appearOptions);
+
+faders.forEach(fader=>{
+
+ appearOnScroll.observe(fader);
+
+});
+
+</script>
+
+</body>
+
+</html>
+    
+  </body>
+  
+</html>
