@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Box</title>
+    <meta name="description" content="Risk Box 是一款即時監測金融交易風險的AI設備，協助銀行辨識異常交易並提供風險預警的黑盒子。">
+    <meta name="keywords" content="Risk Box, 防詐騙, 防洗錢, 金融科技黑盒子, 金流風險, 詐騙偵測, 金融科技, 交易監測, AML, Fraud Detection">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #050b14;
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --accent-blue: #00d4ff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: rgba(5, 11, 20, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 600; letter-spacing: 1px; }
+        .nav-link { color: rgba(255,255,255,0.7) !important; transition: 0.3s; }
+        .nav-link:hover { color: var(--accent-blue) !important; }
+        .nav-link.active { color: #fff !important; font-weight: 600; }
+
+        /* HERO */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(180deg, #000, #050b14);
+        }
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            letter-spacing: 2px;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeUp 1.5s ease forwards;
+        }
+        .hero p { margin-top: 20px; font-size: 1.2rem; opacity: .6; }
+        
+        .enter {
+            margin-top: 40px;
+            display: inline-block;
+            border: 1px solid rgba(255,255,255,.4);
+            padding: 12px 28px;
+            cursor: pointer;
+            transition: .3s;
+            text-decoration: none;
+            color: #fff;
+        }
+        .enter:hover { background: #fff; color: #000; }
+
+        /* Sections */
+        .section { padding: 100px 10%; position: relative; }
+        .section h2 { font-size: 2rem; margin-bottom: 30px; color: #eaf2ff; }
+        .section p { line-height: 1.8; opacity: .8; max-width: 750px; }
+
+        /* Dashboard */
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 40px 10%;
+            background: #0b0f14;
+        }
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 25px;
+            backdrop-filter: blur(6px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+        .panel h3 { font-size: 18px; margin-bottom: 15px; color: #eaf2ff; }
+        .good { color: #35d07f; }
+        .warn { color: #ffcc00; }
+        .red { color: #ff4d4f; }
+        .orange { color: #ff8c42; }
+        .yellow { color: #ffd24d; }
+
+        /* Architecture SVG */
+        .arch-section { max-width: 900px; margin: 80px auto; text-align: center; padding: 0 20px; }
+        .arch-svg { width: 100%; height: auto; margin-top: 20px; }
+        .arch-svg rect { fill: #111821; stroke: #2f3e4e; stroke-width: 2; }
+        .arch-svg text { fill: #d6e2f0; font-size: 14px; }
+        .flow { stroke: var(--accent-blue); stroke-width: 3; }
+        .mirror { stroke: #ffb020; stroke-width: 3; stroke-dasharray: 6 6; }
+
+        /* Grid & Cards */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .card {
+            border: 1px solid rgba(255,255,255,.08);
+            padding: 30px;
+            border-radius: 12px;
+            background: rgba(255,255,255,.02);
+            color: #fff;
+            text-align: center;
+        }
+
+        /* Parallax & Others */
+        .parallax {
+            height: 50vh;
+            background: url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070&auto=format&fit=crop') center/cover fixed;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; }
+        td { border-bottom: 1px solid rgba(255,255,255,.1); padding: 15px 0; opacity: .8; }
+        .footer { text-align: center; padding: 60px 0; opacity: .4; font-size: 0.9rem; }
+
+        /* Animations */
+        @keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+        .fade { opacity: 0; transform: translateY(40px); transition: 1s; }
+        .fade.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">RISK BOX</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html">首頁</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="architecture.html">架構說明</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div>
+        <h1>風險發生的那一秒<br>你，看得見嗎？</h1>
+        <p>Risk Box 即時風險感知設備</p>
+        <div class="enter" onclick="scrollNext()">ENTER</div>
+    </div>
+</section>
+
+<section class="section fade">
+    <h2>金融世界正在承受秒級風險</h2>
+    <p>
+        詐騙、洗錢與帳戶盜用行為在毫秒間完成。
+        異常模式往往存在於正常交易之中，
+        而風險被察覺時，事件早已發生。
+    </p>
+</section>
+
+<div class="parallax"></div>
+
+<section class="section fade">
+    <h2>讓風險浮現</h2>
