@@ -178,3 +178,61 @@
 
 <section class="section fade">
     <h2>讓風險浮現</h2>
+    <p>Risk Box 即時分析交易行為模式，將行為異常轉換為風險權值，協助金融機構提前看見潛在風險。</p>
+</section>
+
+<section class="dashboard">
+    <div class="panel">
+        <h3>系統即時狀態</h3>
+        <p>⚡ 平均速率：<b>3,284</b> 筆/秒</p>
+        <p class="good">🟢 正常交易：99.982%</p>
+    </div>
+    <div class="panel">
+        <h3>當日異常統計</h3>
+        <p class="warn">⚠ 異常筆數：23,418筆</p>
+        <p class="red">🔴 極高風險：312筆</p>
+    </div>
+</section>
+
+<section class="section fade">
+    <h2>工業級運算平台</h2>
+    <div style="text-align: center;">
+        <img src="https://advdownload.advantech.com/productfile/PIS/FWA-3034/Product%20-%20Photo(Main)-50/FWA-3034_7_B20221208094445.jpg" style="width:100%; max-width:800px; border-radius:12px; margin-bottom:40px;">
+    </div>
+    <table>
+        <tr><td>運算能力</td><td>3000+ TPS 即時分析</td></tr>
+        <tr><td>AI 加速</td><td>M.2 AI 加速模組</td></tr>
+        <tr><td>網路模式</td><td>Transparent Bridge / Mirror</td></tr>
+        <tr><td>可靠性</td><td>24/7 雙電源備援</td></tr>
+    </table>
+</section>
+
+<section class="section fade">
+    <h2>合作與聯繫</h2>
+    <p>Email：thalese.studio@gmail.com<br>Taipei, Taiwan</p>
+</section>
+
+<div class="footer">
+    Risk Box © 2026 | Designed for Financial Security
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function scrollNext(){
+        window.scrollTo({top: window.innerHeight, behavior:'smooth'});
+    }
+
+    const faders = document.querySelectorAll('.fade');
+    const appearOnScroll = new IntersectionObserver(function(entries, observer){
+        entries.forEach(entry => {
+            if(!entry.isIntersecting) return;
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+        });
+    }, { threshold: 0.2 });
+
+    faders.forEach(fader => { appearOnScroll.observe(fader); });
+</script>
+
+</body>
+</html>
