@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Risk Box | 金融即時風險基礎建設</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{
+  font-family:'Noto Sans TC',sans-serif;
+  background:#050b14;
+  color:#e8eef6;
+}
+
+/* NAV */
+
+nav{
+  position:fixed;
+  width:100%;
+  top:0;
+  background:rgba(0,0,0,.6);
+  backdrop-filter:blur(10px);
+  display:flex;
+  justify-content:space-between;
+  padding:15px 8%;
+  z-index:999;
+}
+nav a{
+  color:#9fb3c8;
+  text-decoration:none;
+  margin-left:25px;
+  font-size:14px;
+}
+nav a:hover{color:#00d4ff;}
+
+/* HERO */
+
+.hero{
+  height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:0 10%;
+  background:radial-gradient(circle at center,#0b1220 0%,#000 60%);
+}
+.hero h1{
+  font-size:3rem;
+  font-weight:800;
+  line-height:1.3;
+}
+.hero p{
+  margin-top:20px;
+  opacity:.7;
+  max-width:750px;
+  margin-left:auto;
+  margin-right:auto;
+}
+.cta{
+  margin-top:40px;
+  display:inline-block;
+  padding:14px 32px;
+  border-radius:30px;
+  border:1px solid #00d4ff;
+  color:#00d4ff;
+  cursor:pointer;
+}
+.cta:hover{
+  background:#00d4ff;
+  color:#000;
+}
+
+/* SECTION */
+
+.section{
+  padding:120px 8%;
+}
+.section h2{
+  font-size:28px;
+  margin-bottom:40px;
+}
+
+/* GRID 2x2 */
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:30px;
+}
+@media(max-width:768px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+}
+
+.card{
+  padding:35px;
+  border-radius:18px;
+  background:linear-gradient(145deg,#0d1b2a,#0f2438);
+  border:1px solid rgba(0,212,255,.15);
+}
+
+/* DASHBOARD */
+
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:25px;
+}
+@media(max-width:768px){
+  .dashboard{
+    grid-template-columns:1fr;
+  }
+}
+.panel{
+  padding:25px;
+  border-radius:18px;
+  background:#0b1623;
+  border:1px solid rgba(255,255,255,.08);
+}
+
+/* IMAGE */
+
+img{
+  max-width:100%;
+  border-radius:14px;
+}
+
+/* FOOTER */
+
+.footer{
+  text-align:center;
+  padding:60px;
+  opacity:.5;
+}
+</style>
+</head>
+
+<body>
+
+<nav>
+  <div><strong>Risk Box</strong></div>
+  <div>
+    <a href="#how">運作原理</a>
+    <a href="#dashboard">即時狀態</a>
+    <a href="#deployment">接線架構</a>
+    <a href="#hardware">硬體規格</a>
+    <a href="#ai">AI技術</a>
+    <a href="#compliance">法規依循</a>
+    <a href="#open">開放架構</a>
+    <a href="#contact">聯繫</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div>
+    <h1>金融風險，不該在事後才被發現</h1>
+    <p>
+      Risk Box 是部署於金融通訊層的即時風險解析硬體設備。
+      將交易行為轉換為可量化風險權值，讓風險即時可見、可衡量、可驗證。
+    </p>
+    <div class="cta" onclick="location.href='#how'">了解運作原理</div>
+  </div>
+</section>
+
+<section class="section" id="how">
+<h2>Risk Box 如何運作</h2>
+<div class="grid">
+  <div class="card">即時風險權值計算</div>
+  <div class="card">行為異常模式辨識</div>
+  <div class="card">非侵入式透明部署</div>
+  <div class="card">可稽核風險紀錄輸出</div>
+</div>
+</section>
+
+<section class="section" id="dashboard">
+<h2>系統即時狀態</h2>
+<div class="dashboard">
+
+<div class="panel">
+🕒 2026-02-20 21:48<br>
+⚡ 平均處理速率：3,284筆/秒<br>
+📊 今日累計交易量：128,493,221筆<br>
+🟢 正常交易佔比：99.982%
+</div>
+
+<div class="panel">
+⚠ 異常交易筆數：23,418筆<br>
+💰 涉及總金額：NT$ 184,220,900
+</div>
+
+<div class="panel">
+🔴 極高風險：312筆<br>
+🟠 風險升溫：2,184筆<br>
+🟡 輕度異常：20,922筆<br>
+異地短時間交易 / 異常時間行為 / 高頻拆單模式
+</div>
+
+<div class="panel">
+🕒 處理作業中：4筆<br>
+💰 處理中金額：NT$ 880,000<br>
+✅ 已完成作業：2,492筆<br>
+💰 已完成處理金額：NT$ 162,880,000
+</div>
+
+</div>
+</section>
+
+<section class="section" id="deployment">
+<h2>接線示意架構</h2>
+<p>支援 Mirror / TAP 旁聽監測與 Transparent Bridge Inline 模式。</p>
+<img src="YOUR_WIRING_DIAGRAM_IMAGE_URL_HERE">
+</section>
+
+<section class="section" id="hardware">
+<h2>Risk Box 硬體設備</h2>
+<img src="https://advdownload.advantech.com/productfile/PIS/FWA-3034/Product%20-%20Photo(Main)-50/FWA-3034_7_B20221208094445.jpg">
+<br><br>
+<strong>簡易規格：</strong><br>
+• 3000+ TPS 即時分析能力<br>
+• M.2 AI 加速模組<br>
+• Transparent Bridge 模式<br>
+• LAN Bypass 支援<br>
+• 雙電源備援<br>
+• 24/7 金融機房穩定運行
+</section>
+
+<section class="section" id="ai">
+<h2>AI 技術架構</h2>
+<p>
+採用邊緣 AI 即時推論架構，
+透過三維風險模型（行為 / 交易 / 環境）
+計算風險權值與信心指標。
+支援每秒數千筆交易分析，
+推論延遲低於 10ms。
+</p>
+</section>
+
+<section class="section" id="compliance">
+<h2>可靠性與法規依循</h2>
+<p>
+• 支援 AML / CFT 規範<br>
+• 提供完整風險判斷紀錄<br>
+• 可輸出稽核報告<br>
+• 不儲存敏感交易資料<br>
+• 高可用備援架構<br>
+• 設備失效即時通知
+</p>
+</section>
+
+<section class="section" id="open">
+<h2>開放架構宣言</h2>
+<p>
+Risk Box 為開放概念架構，
+可被實作、改良與延伸。
+我們相信風險透明化，
+將成為金融安全的下一代基礎建設。
+</p>
+</section>
+
+<section class="section" id="contact">
+<h2>合作與聯繫</h2>
+Email：thalese.studio@gmail.com<br>
+Taipei, Taiwan
+</section>
+
+<div class="footer">
+Risk Box © 2026
+</div>
+
+</body>
+</html>
