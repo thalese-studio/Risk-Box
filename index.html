@@ -1,24 +1,43 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
-
 <head>
-
 <meta charset="UTF-8">
-  
 <title>Risk Box</title>
-
 <meta name="description" content="Risk Box 是一款即時監測金融交易風險的AI設備，協助銀行辨識異常交易並提供風險預警的黑盒子。">
-
 <meta name="keywords" content="Risk Box, 防詐騙, 防洗錢, 金融科技黑盒子, 金流風險, 詐騙偵測, 金融科技, 交易監測, AML, Fraud Detection">
-
 <meta name="robots" content="index, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet" href="style.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+    :root {
+            --bg-dark: #050b14;
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --accent-blue: #00d4ff;
+        }
 
-  <style>
-    
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Navbar Styling */
+        .navbar {
+            background: rgba(5, 11, 20, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 600; letter-spacing: 1px; }
+        .nav-link { color: rgba(255,255,255,0.7) !important; transition: 0.3s; }
+        .nav-link:hover { color: var(--accent-blue) !important; }
+        .nav-link.active { color: #fff !important; font-weight: 600; }
+
 .dashboard{
 
   display:grid;
@@ -350,6 +369,33 @@ td{
 </head>
 
 <body>
+
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">RISK BOX</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="index.html">首頁</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="architecture.html">架構說明</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div>
+        <h1>風險發生的那一秒<br>你，看得見嗎？</h1>
+        <p>Risk Box 即時風險感知設備</p>
+        <div class="enter" onclick="scrollNext()">ENTER</div>
+    </div>
+</section>
 
 <!-- HERO -->
 
