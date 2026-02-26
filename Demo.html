@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>Risk Box 即時交易風險掃描體驗</title>
+
+<style>
+body{
+  font-family: "Microsoft JhengHei", sans-serif;
+  background:#0f172a;
+  color:#e5e7eb;
+  text-align:center;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+textarea{
+  width:100%;
+  height:160px;
+  background:#020617;
+  color:#e5e7eb;
+  border:1px solid #334155;
+  padding:10px;
+  font-size:14px;
+}
+button{
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:10px 18px;
+  margin:6px;
+  font-size:14px;
+  cursor:pointer;
+  border-radius:6px;
+}
+button:hover{
+  background:#1d4ed8;
+}
+.card{
+  background:#020617;
+  padding:15px;
+  margin-top:15px;
+  border-radius:8px;
+  border:1px solid #334155;
+}
+.riskLow{color:#22c55e;}
+.riskMid{color:#f59e0b;}
+.riskHigh{color:#ef4444;}
+.footer{
+  margin-top:30px;
+  color:#94a3b8;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🛡 Risk Box 即時交易風險掃描體驗</h1>
+<p>模擬銀行等級的詐騙與洗錢風險偵測機制</p>
+
+<div class="card" style="text-align:left; line-height:1.8;">
+<h2>這個頁面在做什麼？</h2>
+<p>
+本頁面模擬金融交易風控引擎。
+您可以載入測試場景或自行輸入交易流，
+系統將即時計算風險指數並顯示偵測結果。
+</p>
+<p style="color:#94a3b8;">
+所有資料僅於瀏覽器本地分析，不會上傳或儲存。
+</p>
+</div>
+
+<h3>📌 測試場景</h3>
+
+<button onclick="loadScenario('normal')">正常日常交易</button>
+<button onclick="loadScenario('mule')">人頭帳戶洗錢鏈</button>
+<button onclick="loadScenario('atm')">ATM 協同提領攻擊</button>
+<button onclick="startDemo()">▶ 自動示範模式</button>
+<button onclick="stopDemo()">⏹ 停止示範</button>
+
+<textarea id="input"></textarea>
+
+<br>
+<button onclick="scan()">開始掃描</button>
+
+<div class="card">
+<h2>風險指數</h2>
+<h1 id="score">--</h1>
+</div>
+
+<div class="card">
+<h2>系統信心指數</h2>
+<h3 id="confidence">--</h3>
+</div>
+
+<div class="card">
+<h2>偵測結果</h2>
+<div id="results"></div>
+</div>
+
+<div class="footer">
+Risk Box Simulator ｜ 金融交易風險可視化展示
+</div>
+
+</div>
+
+<script>
+
+let demoInterval;
+
+const scenarios = {
+normal: [
+"A001 -> B100 1200",
+"A002 -> C200 800",
+"A003 -> D300 2200"
+],
+mule: [
+"A001 -> B889 3200",
+"A001 -> C231 48000",
+"C231 -> D552 49000",
+"D552 -> E901 49000"
+],
+atm: [
+"ATM_Taipei -> A778 30000",
+"ATM_Taichung -> A778 30000",
+"ATM_Kaohsiung -> A778 30000"
+]
+};
+
+function loadScenario(type){
+  document.getElementById("input").value =
+    scenarios[type].join("\n");
+}
+
+function startDemo(){
+  stopDemo();
+  const demoData = scenarios.mule;
+  let index = 0;
+  document.getElementById("input").value = "";
+
+  demoInterval = setInterval(()=>{
+    if(index < demoData.length){
+      document.getElementById("input").value += demoData[index] + "\n";
+      index++;
+    } else {
+      clearInterval(demoInterval);
+      scan();
+    }
+  }, 800);
+}
+
+function stopDemo(){
+  clearInterval(demoInterval);
+}
+
+function scan(){
+  const text = document.getElementById("input").value;
+  const lines = text.split("\n");
+
+  let highRisk = 0;
+  let mulePattern = false;
+  let multiATM = 0;
+  let destinationMap = {};
+
+  lines.forEach(line=>{
+    if(line.includes("49000")) highRisk++;
+    if(line.includes("ATM")) multiATM++;
+
+    const parts = line.split("->");
+    if(parts.length>1){
+      let dest = parts[1].trim().split(" ")[0];
+      destinationMap[dest] = (destinationMap[dest] || 0) + 1;
+      if(destinationMap[dest] > 2) mulePattern = true;
+    }
+  });
+
+  let score = Math.min(100, highRisk*20 + multiATM*15 + (mulePattern?30:0));
+  let confidence = 60 + score/2;
+
+  document.getElementById("score").innerHTML =
+    `<span class="${score>60?'riskHigh':score>30?'riskMid':'riskLow'}">${score}</span>`;
+
+  document.getElementById("confidence").innerHTML =
+    confidence.toFixed(1) + "%";
+
+  let results = "";
+
+  if(score < 30){
+    results += "<p class='riskLow'>✔ 交易行為正常</p>";
+  }
+  if(highRisk > 0){
+    results += "<p class='riskMid'>⚠ 偵測到高額異常交易</p>";
+  }
+  if(mulePattern){
+    results += "<p class='riskHigh'>🚨 疑似人頭帳戶洗錢網絡</p>";
+  }
+  if(multiATM >= 3){
+    results += "<p class='riskHigh'>🚨 偵測到多地ATM協同提領</p>";
+  }
+  if(score > 70){
+    results += "<p class='riskHigh'>⛔ 建議立即介入與阻擋交易</p>";
+  }
+
+  document.getElementById("results").innerHTML = results;
+}
+
+window.onload = function(){
+  startDemo();
+};
+
+</script>
+
+</body>
+</html>
