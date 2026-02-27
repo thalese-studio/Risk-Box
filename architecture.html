@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Box | 三維風控架構</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050b14;
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --accent-blue: #00d4ff;
+            --text-gray: #c7d0e0;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            padding-top: 80px;
+        }
+
+        /* Navbar 同步 */
+        .navbar { background: rgba(5, 11, 20, 0.9) !important; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .navbar-brand { font-weight: 600; color: #fff !important; }
+        .nav-link { color: rgba(255,255,255,0.7) !important; }
+        .nav-link:hover, .nav-link.active { color: var(--accent-blue) !important; }
+
+        .container { max-width: 1000px; margin-bottom: 100px; }
+
+        h1 { text-align: center; margin: 40px 0; font-weight: 600; color: #fff; }
+        h2 { font-size: 1.8rem; margin-top: 60px; margin-bottom: 30px; color: var(--accent-blue); border-left: 4px solid var(--accent-blue); padding-left: 15px; }
+        h3 { font-size: 1.3rem; margin-top: 30px; color: #fff; }
+
+        /* Table 樣式統一 */
+        .table-container { background: var(--panel-bg); border-radius: 12px; padding: 10px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.1); }
+        table { width: 100%; color: var(--text-gray); border-collapse: collapse; }
+        th { background: rgba(255,255,255,0.05); color: #fff; padding: 15px; text-align: left; }
+        td { padding: 15px; border-top: 1px solid rgba(255,255,255,0.05); }
+
+        /* Code & Math */
+        pre { background: #000; color: #00ffcc; padding: 20px; border-radius: 8px; border: 1px solid #1a3a3a; overflow-x: auto; }
+        .math-box { text-align: center; font-size: 1.5rem; background: rgba(0,212,255,0.05); padding: 20px; border-radius: 8px; margin: 20px 0; color: var(--accent-blue); }
+
+        /* 3D Viz 樣式統一 */
+        .risk-box-viz {
+            margin: 50px auto; perspective: 1000px; width: 100%; height: 400px;
+            background: #000; border-radius: 12px; display: flex; justify-content: center; align-items: center; position: relative;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .scene { width: 200px; height: 200px; transform-style: preserve-3d; transform: rotateX(-20deg) rotateY(-35deg); }
+        .cube { width: 100px; height: 100px; position: absolute; transform-style: preserve-3d; transform: translate3d(50px, -50px, 50px); }
+        .face { position: absolute; width: 100px; height: 100px; border: 1px solid rgba(0,212,255,0.5); background: rgba(0,212,255,0.1); }
+        .axis { position: absolute; background: rgba(255,255,255,0.2); transform-origin: left; height: 2px; }
+        .axis-label { position: absolute; color: #aaa; font-size: 10px; transform: rotateY(0); }
+
+        .footer { text-align: center; padding: 60px; opacity: 0.5; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container-fluid px-5">
+        <a class="navbar-brand" href="index.html">RISK BOX</a>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="index.html">首頁</a></li>
+                <li class="nav-item"><a class="nav-link active" href="architecture.html">架構說明</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Risk Box 三維風控架構</h1>
+    
+    <div style="background: rgba(0,212,255,0.1); padding: 20px; border-radius: 8px; border-left: 4px solid var(--accent-blue);">
+        <p><strong>原則：</strong> 落地部署、監理可稽核、工程可實作。</p>
+        <p><strong>數據範圍：</strong> ISO-8583, ISO-20022, 165聯防黑名單, 內部白名單。</p>
+    </div>
+
+    <h2>一、 系統定位</h2>
+    <p>Risk Box 是部署於 OSI Layer 7 的交易風險分析引擎，定位為「旁路分析」，不阻斷交易、不參與帳務，僅輸出風險標記與處置建議。</p>
+
+    <h2>二、 Risk Score 設計</h2>
+    <div class="math-box">R = Σ (w_i * f_i)</div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr><th>編號</th><th>維度</th><th>條件</th><th>權重</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>R1</td><td>高齡大額</td><td>>70歲 & 大額</td><td>+40</td></tr>
+                <tr><td>R6</td><td>快速外移</td><td>入帳即轉出</td><td>+45</td></tr>
+                <tr><td>G3</td><td>黑名單命中</td><td>165/境外黑名單</td><td>+60</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>三、 三維判斷矩陣視覺化</h2>
+    <div class="risk-box-viz">
+        <div class="scene">
+            <div class="axis" style="width:200px; transform:rotateY(0deg);"><span class="axis-label" style="right:-70px;">Risk Score</span></div>
+            <div class="axis" style="width:200px; transform:rotateZ(-90deg);"><span class="axis-label" style="right:-70px;">Confidence</span></div>
+            <div class="axis" style="width:200px; transform:rotateY(-90deg);"><span class="axis-label" style="right:-70px;">AI Filter</span></div>
+            <div class="cube">
+                <div class="face" style="transform:translateZ(50px); background:rgba(255,0,0,0.3);"></div>
+                <div class="face" style="transform:rotateY(90deg) translateZ(50px);"></div>
+                <div class="face" style="transform:rotateX(90deg) translateZ(50px);"></div>
+            </div>
+        </div>
+    </div>
+
+    <h2>四、 系統輸出 JSON 範例</h2>
+    <pre>
+{
+  "transaction_id": "TX123",
+  "risk_score": 185,
+  "confidence": 0.91,
+  "behavior_tags": ["ACCOUNT_CONTROL_PATTERN", "RAPID_DRAIN_PATTERN"]
+}</pre>
+
+</div>
+
+<div class="footer">Risk Box © 2026</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
