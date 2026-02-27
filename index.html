@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Risk Box | 即時金融風險感知設備</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #050b14;
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --accent-blue: #00d4ff;
+            --text-gray: #c7d0e0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: var(--bg-dark);
+            color: #fff;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: rgba(5, 11, 20, 0.9) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 600; letter-spacing: 1px; color: #fff !important; }
+        .nav-link { color: rgba(255,255,255,0.7) !important; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--accent-blue) !important; }
+
+        /* Hero Section */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: radial-gradient(circle at center, #0a1628 0%, #050b14 100%);
+        }
+        .hero h1 { font-size: clamp(2rem, 5vw, 3.5rem); letter-spacing: 2px; font-weight: 600; }
+        .hero p { margin-top: 20px; font-size: 1.2rem; color: var(--text-gray); }
+        .enter-btn {
+            margin-top: 40px;
+            display: inline-block;
+            border: 1px solid var(--accent-blue);
+            padding: 12px 35px;
+            color: var(--accent-blue);
+            text-decoration: none;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+        .enter-btn:hover { background: var(--accent-blue); color: #000; box-shadow: 0 0 20px var(--accent-blue); }
+
+        /* General Section */
+        .section { padding: 100px 10%; }
+        h2 { font-size: 2.2rem; margin-bottom: 40px; color: #fff; border-left: 4px solid var(--accent-blue); padding-left: 20px; }
+        p { color: var(--text-gray); font-size: 1.1rem; }
+
+        /* Dashboard & Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 40px;
+        }
+        .panel {
+            background: var(--panel-bg);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 30px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .panel h3 { font-size: 1.25rem; margin-bottom: 20px; color: var(--accent-blue); }
+        .good { color: #35d07f; } .warn { color: #ffcc00; } .red { color: #ff4d4f; }
+
+        /* Parallax & Visuals */
+        .parallax {
+            height: 50vh;
+            background: linear-gradient(rgba(5,11,20,0.7), rgba(5,11,20,0.7)), 
+                        url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?q=80&w=2070') center/cover fixed;
+        }
+
+        .footer { text-align: center; padding: 60px; opacity: 0.5; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); }
+
+        /* Animation */
+        .fade-in { opacity: 0; transform: translateY(30px); transition: 1s ease-out; }
+        .fade-in.visible { opacity: 1; transform: translateY(0); }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">RISK BOX</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link active" href="index.html">首頁</a></li>
+                <li class="nav-item"><a class="nav-link" href="architecture.html">架構說明</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<section class="hero">
+    <div>
+        <h1>風險發生的那一秒<br>你，看得見嗎？</h1>
+        <p>Risk Box 即時風險感知設備</p>
+        <a class="enter-btn" onclick="scrollNext()">ENTER</a>
+    </div>
+</section>
+
+<section class="section fade-in">
+    <h2>金融世界正在承受秒級風險</h2>
+    <p>詐騙、洗錢與帳戶盜用行為在毫秒間完成。異常模式往往存在於正常交易之中，而風險被察覺時，事件早已發生。</p>
+</section>
+
+<div class="parallax"></div>
+
+<section class="section fade-in">
+    <h2>即時監測面板</h2>
+    <div class="dashboard-grid">
+        <div class="panel">
+            <h3>系統即時狀態</h3>
+            <p>🕒 2026-02-20 21:48</p>
+            <p>⚡ 速率：<b>3,284</b> 筆 / 秒</p>
+            <p class="good">🟢 正常交易佔比：99.982%</p>
+        </div>
+        <div class="panel">
+            <h3>當日異常統計</h3>
+            <p class="warn">⚠ 異常筆數：23,418筆</p>
+            <p>💰 涉及金額：NT$ 184,220,900</p>
+        </div>
+        <div class="panel">
+            <h3>風險分佈</h3>
+            <p class="red">🔴 極高風險：312筆</p>
+            <p style="color: #ff8c42;">🟠 風險升溫：2,184筆</p>
+            <p style="color: #ffd24d;">🟡 輕度異常：20,922筆</p>
+        </div>
+    </div>
+</section>
+
+<section class="section fade-in" style="background: rgba(255,255,255,0.02);">
+    <h2>核心能力</h2>
+    <div class="dashboard-grid">
+        <div class="panel">即時風險感知</div>
+        <div class="panel">風險權值化分析</div>
+        <div class="panel">異常事件浮現</div>
+        <div class="panel">不干預交易流程</div>
+    </div>
+</section>
+
+<section class="section fade-in">
+    <h2>合作與聯繫</h2>
+    <p>Email：thalese.studio@gmail.com<br>Taipei, Taiwan</p>
+</section>
+
+<div class="footer">Risk Box © 2026</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function scrollNext() { window.scrollTo({top: window.innerHeight, behavior:'smooth'}); }
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
