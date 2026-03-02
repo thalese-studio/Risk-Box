@@ -1,29 +1,234 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<title>Risk Box 決策模擬系統</title>
+<title>Risk Box Demo Simulator</title>
 <style>
-body { background: #050b14; color: #ffffff; font-family: "Microsoft JhengHei", sans-serif; padding: 20px; }
-.container { max-width: 1200px; margin: auto; }
-.flex-row { display: flex; gap: 20px; margin-bottom: 20px; }
-.panel { background: #1a1a1a; border: 1px solid #333; padding: 20px; border-radius: 8px; flex: 1; }
-.title { color: #00d4ff; font-weight: bold; font-size: 1.2em; margin-bottom: 15px; border-left: 5px solid #00d4ff; padding-left: 10px; }
-button { background: #00d4ff; color: #000; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; width: 100%; border-radius: 4px; }
-select, input { background: #000; color: #fff; border: 1px solid #444; padding: 8px; width: 100%; margin-bottom: 10px; border-radius: 4px; }
-pre { background: #000; padding: 15px; border: 1px solid #333; color: #00ffcc; font-size: 12px; height: 100px; overflow: auto; }
-.log { background: #000; color: #00ffcc; height: 150px; overflow-y: scroll; font-family: monospace; font-size: 12px; padding: 10px; border: 1px solid #333; }
-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-th, td { border: 1px solid #444; padding: 10px; text-align: left; }
-th { background: #222; color: #00d4ff; }
-.red { color: #ff4d4f; font-weight: bold; }
+body{
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    margin:0;
+    padding:20px;
+}
+h2{color:#38bdf8}
+.section{
+    background:#1e293b;
+    padding:15px;
+    margin-bottom:20px;
+    border-radius:8px;
+}
+button{
+    padding:8px 15px;
+    margin-top:10px;
+    background:#38bdf8;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+}
+input,select,textarea{
+    width:100%;
+    margin-top:5px;
+    padding:5px;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+th,td{
+    border:1px solid #334155;
+    padding:6px;
+    text-align:center;
+}
+.logbox{
+    background:black;
+    color:#22c55e;
+    height:150px;
+    overflow:auto;
+    font-size:12px;
+    padding:5px;
+}
+.compare{
+    display:flex;
+    gap:20px;
+}
+.compare div{
+    flex:1;
+    background:#111827;
+    padding:10px;
+    border-radius:8px;
+}
 </style>
 </head>
+
 <body>
-<div class="container">
-<h1>RISK BOX | 決策模擬系統</h1>
-<p style="color: #888;">對應功能：三維決策融合、風險權值化、Event Level 輸出</p>
+
+<h2>Risk Box 模擬平台</h2>
+
+<div class="section">
+<h3>① 選擇模擬情境</h3>
+<select id="scenario">
+<option value="normal">正常交易</option>
+<option value="mule">人頭戶洗錢</option>
+<option value="fraud">複合式詐騙</option>
+<option value="control">長期帳戶控制 + 高頻分批搬空</option>
+</select>
+</div>
+
+<div class="section">
+<h3>② 報文輸入層 (ISO-8583 / ISO-20022)</h3>
+
+<label>金額</label>
+<input type="number" id="amount">
+
+<label>日期</label>
+<input type="date" id="date">
+
+<label>時間</label>
+<input type="time" id="time">
+
+<label>地點</label>
+<input type="text" id="location">
+
+<label>交易通道</label>
+<select id="channel">
+<option>APP</option>
+<option>ATM</option>
+<option>網銀</option>
+<option>轉帳</option>
+<option>信用卡</option>
+</select>
+
+<button onclick="generateRandom()">自動亂數產生</button>
+<button onclick="confirmData()">確認產出模擬資料</button>
+
+<table id="resultTable"></table>
+</div>
+
+<div class="section">
+<h3>③ 名單管理</h3>
+
+<label>白名單 (帳號)</label>
+<textarea id="whitelist"></textarea>
+
+<label>黑名單 (帳號/IP)</label>
+<textarea id="blacklist"></textarea>
+
+<label>保護名單 (高風險保護客戶)</label>
+<textarea id="protectlist"></textarea>
+
+<button onclick="runRisk()">啟動 Risk Box 風險評估</button>
+</div>
+
+<div class="section">
+<h3>④ 風險比較結果</h3>
+<div class="compare">
+<div id="withoutRisk">
+<h4>無 Risk Box</h4>
+</div>
+<div id="withRisk">
+<h4>有 Risk Box</h4>
+</div>
+</div>
+</div>
+
+<div class="section">
+<h3>背景 Log 紀錄</h3>
+<div class="logbox" id="logbox"></div>
+</div>
+
+<script>
+
+let currentData={};
+let logs=[];
+
+function randomIP(){
+    return Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255);
+}
+
+function generateRandom(){
+    let scenario=document.getElementById("scenario").value;
+
+    let amount=Math.floor(Math.random()*100000)+100;
+    let location=["台北","台中","高雄","新加坡","香港"][Math.floor(Math.random()*5)];
+    let channel=["APP","ATM","網銀","轉帳","信用卡"][Math.floor(Math.random()*5)];
+
+    if(scenario==="mule") amount=50000+Math.random()*50000;
+    if(scenario==="fraud") amount=80000+Math.random()*100000;
+    if(scenario==="control") amount=10000+Math.random()*20000;
+
+    document.getElementById("amount").value=amount;
+    document.getElementById("date").value="2026-03-02";
+    document.getElementById("time").value="12:00";
+    document.getElementById("location").value=location;
+    document.getElementById("channel").value=channel;
+
+}
+
+function confirmData(){
+    currentData={
+        amount:document.getElementById("amount").value,
+        date:document.getElementById("date").value,
+        time:document.getElementById("time").value,
+        location:document.getElementById("location").value,
+        channel:document.getElementById("channel").value,
+        ip:randomIP()
+    };
+
+    let table=document.getElementById("resultTable");
+    table.innerHTML="<tr><th>金額</th><th>日期</th><th>時間</th><th>地點</th><th>通道</th><th>IP</th></tr>"+
+    "<tr>"+
+    "<td>"+currentData.amount+"</td>"+
+    "<td>"+currentData.date+"</td>"+
+    "<td>"+currentData.time+"</td>"+
+    "<td>"+currentData.location+"</td>"+
+    "<td>"+currentData.channel+"</td>"+
+    "<td>"+currentData.ip+"</td>"+
+    "</tr>";
+
+    log("產生模擬交易資料："+JSON.stringify(currentData));
+}
+
+function runRisk(){
+
+    let riskScore=0;
+    let scenario=document.getElementById("scenario").value;
+
+    if(scenario==="mule") riskScore+=60;
+    if(scenario==="fraud") riskScore+=80;
+    if(scenario==="control") riskScore+=90;
+
+    if(currentData.amount>80000) riskScore+=20;
+    if(currentData.location==="新加坡") riskScore+=15;
+
+    let whitelist=document.getElementById("whitelist").value;
+    let blacklist=document.getElementById("blacklist").value;
+
+    if(blacklist.includes(currentData.ip)) riskScore+=50;
+    if(whitelist.length>0) riskScore-=30;
+
+    let without="交易已完成<br>無任何風險判斷";
+    let withResult=riskScore>70?
+        "🚨 高風險阻擋 (Risk="+riskScore+")":
+        "⚠️ 中低風險監控 (Risk="+riskScore+")";
+
+    document.getElementById("withoutRisk").innerHTML="<h4>無 Risk Box</h4>"+without;
+    document.getElementById("withRisk").innerHTML="<h4>有 Risk Box</h4>"+withResult;
+
+    log("Risk Box 啟動評估，風險分數："+riskScore);
+}
+
+function log(msg){
+    let time=new Date().toLocaleTimeString();
+    logs.push(time+" - "+msg);
+    document.getElementById("logbox").innerHTML=logs.join("<br>");
+}
+
+</script>
 
 </body>
 </html>
