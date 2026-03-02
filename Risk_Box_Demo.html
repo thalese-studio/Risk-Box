@@ -132,6 +132,16 @@ th,td{
 </div>
 </div>
 </div>
+    <div class="section">
+<h3>⑤ 風險值計算說明</h3>
+<table id="riskExplain">
+<tr>
+<th>風險來源</th>
+<th>說明</th>
+<th>分數</th>
+</tr>
+</table>
+</div>
 
 <div class="section">
 <h3>背景 Log 紀錄</h3>
@@ -195,33 +205,59 @@ function confirmData(){
 
 function runRisk(){
 
-    let riskScore=0;
     let scenario=document.getElementById("scenario").value;
 
-    if(scenario==="mule") riskScore+=60;
-    if(scenario==="fraud") riskScore+=80;
-    if(scenario==="control") riskScore+=90;
+    let baseRisk=0;
+    let amountRisk=0;
+    let geoRisk=0;
+    let listRisk=0;
+    let adjust=0;
 
-    if(currentData.amount>80000) riskScore+=20;
-    if(currentData.location==="新加坡") riskScore+=15;
+    // 情境風險
+    if(scenario==="mule") baseRisk=60;
+    if(scenario==="fraud") baseRisk=80;
+    if(scenario==="control") baseRisk=90;
 
+    // 金額風險
+    if(currentData.amount>80000) amountRisk=20;
+
+    // 地理風險
+    if(currentData.location==="新加坡" || currentData.location==="香港") geoRisk=15;
+
+    // 名單機制
     let whitelist=document.getElementById("whitelist").value;
     let blacklist=document.getElementById("blacklist").value;
 
-    if(blacklist.includes(currentData.ip)) riskScore+=50;
-    if(whitelist.length>0) riskScore-=30;
+    if(blacklist.includes(currentData.ip)) listRisk=50;
+    if(whitelist.length>0) adjust=-30;
 
+    let totalRisk=baseRisk+amountRisk+geoRisk+listRisk+adjust;
+
+    // 顯示比較結果
     let without="交易已完成<br>無任何風險判斷";
-    let withResult=riskScore>70?
-        "🚨 高風險阻擋 (Risk="+riskScore+")":
-        "⚠️ 中低風險監控 (Risk="+riskScore+")";
+    let withResult= totalRisk>70
+        ? "🚨 高風險阻擋 (Risk="+totalRisk+")"
+        : "⚠️ 中低風險監控 (Risk="+totalRisk+")";
 
     document.getElementById("withoutRisk").innerHTML="<h4>無 Risk Box</h4>"+without;
     document.getElementById("withRisk").innerHTML="<h4>有 Risk Box</h4>"+withResult;
 
-    log("Risk Box 啟動評估，風險分數："+riskScore);
-}
+    // 風險說明表
+    let table=document.getElementById("riskExplain");
 
+    table.innerHTML=
+    "<tr><th>風險來源</th><th>說明</th><th>分數</th></tr>"+
+    "<tr><td>情境風險</td><td>"+scenario+"</td><td>"+baseRisk+"</td></tr>"+
+    "<tr><td>金額異常</td><td>> 80,000</td><td>"+amountRisk+"</td></tr>"+
+    "<tr><td>跨境/高風險地區</td><td>"+currentData.location+"</td><td>"+geoRisk+"</td></tr>"+
+    "<tr><td>黑名單命中</td><td>IP/帳戶比對</td><td>"+listRisk+"</td></tr>"+
+    "<tr><td>白名單修正</td><td>信任帳戶</td><td>"+adjust+"</td></tr>"+
+    "<tr><td><b>總風險值</b></td><td></td><td><b>"+totalRisk+"</b></td></tr>";
+
+    log("Risk Box 風險組成："+JSON.stringify({
+        baseRisk,amountRisk,geoRisk,listRisk,adjust,totalRisk
+    }));
+}
 function log(msg){
     let time=new Date().toLocaleTimeString();
     logs.push(time+" - "+msg);
