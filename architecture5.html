@@ -25,7 +25,7 @@
             line-height: 1.6;
         }
 
-        /* Navbar */
+        /* Navbar 同步 index.html */
         .navbar {
             background: rgba(5, 11, 20, 0.9) !important;
             backdrop-filter: blur(10px);
@@ -41,6 +41,7 @@
         h2 { font-size: 1.8rem; margin-top: 60px; margin-bottom: 30px; color: var(--accent-blue); border-left: 4px solid var(--accent-blue); padding-left: 15px; }
         h3 { font-size: 1.3rem; margin-top: 35px; color: #fff; }
 
+        /* 通用面板組件 */
         .glass-panel {
             background: var(--panel-bg);
             border: 1px solid rgba(255,255,255,0.08);
@@ -50,6 +51,7 @@
             margin: 20px 0;
         }
 
+        /* 提醒區塊 */
         .highlight { border-left: 4px solid var(--accent-blue); background: rgba(0, 212, 255, 0.05); }
         .warning { border-left: 4px solid var(--accent-yellow); background: rgba(255, 204, 0, 0.05); color: var(--accent-yellow); }
 
@@ -86,7 +88,7 @@
         .decision-diamond { width: 120px; height: 120px; border: 2px solid var(--accent-blue); margin: 30px auto; transform: rotate(45deg); display: flex; align-items: center; justify-content: center; background: rgba(0,212,255,0.1); }
         .decision-text { transform: rotate(-45deg); font-size: 14px; font-weight: bold; color: #fff; text-align: center; }
 
-        /* 修正後的 3D 視覺化：防止超出與優化自適應 */
+        /* 3D 視覺化修正版本 */
         .risk-box-viz { 
             margin: 50px auto; 
             perspective: 1200px; 
@@ -99,7 +101,7 @@
             align-items: center; 
             position: relative; 
             border: 1px solid rgba(255,255,255,0.1);
-            overflow: hidden; /* 防止軸線超出容器 */
+            overflow: hidden; /* 防止座標軸溢出 */
         }
         .scene { 
             width: 200px; 
@@ -108,27 +110,29 @@
             transform: rotateX(-20deg) rotateY(-35deg); 
             transition: 0.5s; 
             position: relative;
-            /* 行動裝置自動縮放 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        @media (max-width: 768px) {
-            .scene { transform: rotateX(-20deg) rotateY(-35deg) scale(0.7); }
-            .risk-box-viz { height: 350px; }
-        }
-        .scene:hover { transform: rotateX(-10deg) rotateY(-15deg) scale(1.1); }
+        .scene:hover { transform: rotateX(-10deg) rotateY(-15deg) scale(1.05); }
         
-        /* 軸線調整 */
-        .axis { position: absolute; background: rgba(255, 255, 255, 0.3); transform-origin: left center; top: 50%; left: 50%; }
-        .axis-x { width: 200px; height: 2px; transform: rotateY(0deg); }
-        .axis-y { width: 200px; height: 2px; transform: rotateZ(-90deg); }
-        .axis-z { width: 200px; height: 2px; transform: rotateY(-90deg); }
+        /* 軸線定位優化 */
+        .axis { position: absolute; background: rgba(255, 255, 255, 0.3); transform-origin: left center; }
+        .axis-x { width: 200px; height: 2px; transform: rotateY(0deg) translateZ(0); left: 0; }
+        .axis-y { width: 200px; height: 2px; transform: rotateZ(-90deg); left: 0; top: 100px; }
+        .axis-z { width: 200px; height: 2px; transform: rotateY(-90deg); left: 0; }
         
         .axis-label { position: absolute; color: #fff; font-size: 11px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
-        .label-x { right: -85px; top: -5px; color: var(--accent-red); }
-        .label-y { right: -105px; top: -5px; color: var(--accent-green); }
-        .label-z { right: -95px; top: -5px; color: var(--accent-blue); }
-
-        /* 方塊與動畫 */
-        .cube { width: 100px; height: 100px; position: absolute; transform-style: preserve-3d; left: 50%; top: 50%; transform: translate3d(0, -100px, 0); }
+        
+        /* 方塊與動畫修正 */
+        .cube { 
+            width: 100px; 
+            height: 100px; 
+            position: absolute; 
+            transform-style: preserve-3d; 
+            /* 將方塊置於第一象限內 */
+            transform: translate3d(50px, -50px, 50px); 
+        }
         .face { position: absolute; width: 100px; height: 100px; border: 1px solid rgba(255, 255, 255, 0.4); }
         .face-front  { transform: rotateY(0deg) translateZ(50px); background: rgba(255, 77, 79, 0.4); }
         .face-back   { transform: rotateY(180deg) translateZ(50px); background: rgba(255, 77, 79, 0.2); }
@@ -137,10 +141,23 @@
         .face-top    { transform: rotateX(90deg) translateZ(50px); background: rgba(255, 204, 0, 0.3); }
         .face-bottom { transform: rotateX(-90deg) translateZ(50px); background: rgba(53, 208, 127, 0.3); }
         
-        .pulse { position: absolute; width: 100px; height: 100px; border: 2px solid var(--accent-blue); animation: scan 2.5s infinite linear; transform-style: preserve-3d; left: 0; top: 0; }
-        @keyframes scan { 0% { transform: translateZ(-50px); opacity: 0; } 50% { opacity: 1; } 100% { transform: translateZ(150px); opacity: 0; } }
+        .pulse { 
+            position: absolute; 
+            width: 100px; 
+            height: 100px; 
+            border: 2px solid var(--accent-blue); 
+            animation: scan 2.5s infinite linear; 
+            transform-style: preserve-3d; 
+            left: 0; 
+            top: 0; 
+        }
+        @keyframes scan { 
+            0% { transform: translateZ(-50px); opacity: 0; } 
+            50% { opacity: 1; } 
+            100% { transform: translateZ(100px); opacity: 0; } 
+        }
         
-        .legend { position: absolute; bottom: 15px; left: 20px; color: #888; font-size: 11px; z-index: 10; }
+        .legend { position: absolute; bottom: 15px; left: 20px; color: #888; font-size: 11px; }
 
         .footer { text-align: center; padding: 60px; opacity: 0.5; font-size: 0.9rem; border-top: 1px solid rgba(255,255,255,0.1); }
     </style>
@@ -177,10 +194,13 @@
     </div>
 
     <h2>二、 系統資料來源與格式</h2>
+    
     <h3>2.1 ISO-8583 欄位映射</h3>
     <div class="table-container">
         <table>
-            <thead><tr><th>欄位</th><th>說明</th><th>用途</th></tr></thead>
+            <thead>
+                <tr><th>欄位</th><th>說明</th><th>用途</th></tr>
+            </thead>
             <tbody>
                 <tr><td>MTI</td><td>訊息類型</td><td>交易類型判定</td></tr>
                 <tr><td>DE4</td><td>Amount</td><td>金額分析</td></tr>
@@ -202,11 +222,24 @@
         </ul>
     </div>
 
+    <h3>2.3 黑/白名單資料格式 (JSON)</h3>
+    <pre>{
+  "account_hash": "hash_value",
+  "risk_type": "fraud_mule",
+  "confidence": 0.92,
+  "source": "165",
+  "last_updated": "2026-02-01"
+}</pre>
+
     <h2>三、 Risk Score 設計（風險權值）</h2>
     <div class="math">R = Σ (w_i * f_i)</div>
+
+    <h3>3.1 風階權重表 (重點標籤)</h3>
     <div class="table-container">
         <table>
-            <thead><tr><th>編號</th><th>維度</th><th>條件</th><th>權重</th></tr></thead>
+            <thead>
+                <tr><th>編號</th><th>維度</th><th>條件</th><th>權重</th></tr>
+            </thead>
             <tbody>
                 <tr><td>R1</td><td>高齡大額</td><td>>70歲 & 大額</td><td>+40</td></tr>
                 <tr><td>R6</td><td>快速外移</td><td>入帳即轉出</td><td>+45</td></tr>
@@ -217,10 +250,40 @@
         </table>
     </div>
 
+    <div class="glass-panel warning">
+        ⚠ 名單修正係數：黑名單 +60 | 白名單 × 0.75 | 保護名單 × 1.15
+    </div>
+
+    <h2>四、 時間衰減與累積風險</h2>
+    <div class="math">R_t = R * e^(-λ * Δt)</div>
+    <p>確保舊風險隨時間淡化，並透過 <code>R_cum = Σ R_t</code> 監控長期「慢性抽乾」行為。</p>
+
+    <h2>五、 Confidence Index (信心可靠度)</h2>
+    <div class="math">C = 1 - Π (1 - p_i)</div>
+    <div class="glass-panel">
+        <ul>
+            <li>165黑名單可信度: 0.9</li>
+            <li>行為異常模型可信度: 0.6</li>
+            <li>金額異常可信度: 0.4</li>
+        </ul>
+    </div>
+
+    <h2>六、 AI Logic Filter 行為標籤</h2>
+    <p>AI 輸出行為語意標籤，常見包含：</p>
+    <div class="glass-panel">
+        <ul>
+            <li><code>ACCOUNT_CONTROL_PATTERN</code>: 帳戶受控特徵</li>
+            <li><code>FUNNEL_PATTERN</code>: 漏斗歸集模式</li>
+            <li><code>RAPID_DRAIN_PATTERN</code>: 金流快速排乾</li>
+        </ul>
+    </div>
+
     <h2>七、 三維決策融合矩陣</h2>
     <div class="table-container">
         <table>
-            <thead><tr><th>Risk Score</th><th>Confidence</th><th>Event Level</th><th>UI 燈號</th></tr></thead>
+            <thead>
+                <tr><th>Risk Score</th><th>Confidence</th><th>Event Level</th><th>UI 燈號</th></tr>
+            </thead>
             <tbody>
                 <tr><td>低 / 中</td><td>低</td><td>0</td><td class="level-0">綠 (正常)</td></tr>
                 <tr><td>中</td><td>中</td><td>1</td><td class="level-1">黃 (微異常)</td></tr>
@@ -230,20 +293,156 @@
         </table>
     </div>
 
+    <h2>八、 系統輸出 JSON 範例</h2>
+    <pre>{
+  "transaction_id": "TX123",
+  "risk_score": 185,
+  "confidence": 0.91,
+  "event_level": 3,
+  "behavior_tags": [
+    "ACCOUNT_CONTROL_PATTERN",
+    "RAPID_DRAIN_PATTERN"
+  ],
+  "risk_factors": ["R6", "G3", "T1"],
+  "timestamp": "2026-02-25T13:22:00Z"
+}</pre>
+
+    <h2>九、 部署建議</h2>
+    <div class="glass-panel">
+        <ul>
+            <li><strong>即時層</strong>: Kafka + Streaming Risk Engine (延遲 &lt; 50ms)</li>
+            <li><strong>分析層</strong>: 拓撲分析與 AI 模式更新</li>
+            <li><strong>稽核層</strong>: 因子可追溯性與版本回溯</li>
+        </ul>
+    </div>
+
+    <h2>十、 帳戶結構變動風險 (Meta-Risk)</h2>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr><th>監控行為</th><th>風險等級</th><th>觸發維度</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>新增約定轉帳帳戶</td><td class="level-3">高</td><td>結構性風險點</td></tr>
+                <tr><td>提升轉帳限額</td><td class="level-3">高</td><td>結構性風險點</td></tr>
+                <tr><td>OTP 驗證行為異常頻繁</td><td class="level-2">中</td><td>行為語意判定</td></tr>
+                <tr><td>登入裝置/IP 頻繁變更</td><td class="level-2">中</td><td>R8 / R9</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h2>十一、 效能與延遲設計建議</h2>
+    <div class="glass-panel highlight">
+        <ul>
+            <li><strong>即時決策目標：</strong> 分析時間 &lt; 50ms。</li>
+            <li><strong>高併發支援：</strong> 採用記憶體快取 (In-Memory Cache) 存儲高頻訪問之風險特徵。</li>
+            <li><strong>非同步寫入：</strong> 分析結果即時回傳，但完整日誌採非同步寫入資料庫。</li>
+        </ul>
+    </div>
+
+    <h2>十二、 部署建議架構</h2>
+    <div class="glass-panel">
+        <ul>
+            <li><strong>即時層 (Hot Layer)：</strong> Kafka / MQ 接收報文，執行 Streaming Risk Engine，秒級產出 Event Level。</li>
+            <li><strong>分析層 (Warm Layer)：</strong> 負責複雜的「拓撲分析 (Graph Analysis)」與行為模型重訓練。</li>
+            <li><strong>情資層 (Cold Layer)：</strong> 定時同步 165 黑名單與跨行聯防數據，並進行數據歸檔。</li>
+        </ul>
+    </div>
+
+    <h2>十三、 監理與稽核支援 (Compliance)</h2>
+    <div class="glass-panel">
+        <ul>
+            <li>✅ <strong>決策可解釋性：</strong> 每一筆 Event 必須對應具體的 <code>risk_factors</code> 編號。</li>
+            <li>✅ <strong>版本回溯：</strong> 支持回測舊版規則在歷史數據上的表現。</li>
+            <li>✅ <strong>規則變更紀錄：</strong> 所有的權重調整與 AI 模型更新皆需保留 Operator Log。</li>
+        </ul>
+    </div>
+
+    <h2>十四、 為何此架構有效？</h2>
+    <div class="event-grid">
+        <div class="event-item" style="border: 1px solid var(--accent-blue);">✔ 風險權值<br>(捕捉危險性)</div>
+        <div class="event-item" style="border: 1px solid var(--accent-blue);">✔ 信心指數<br>(排除偽陽性)</div>
+        <div class="event-item" style="border: 1px solid var(--accent-blue);">✔ 行為語意<br>(識別詐騙人格)</div>
+    </div>
+
+    <h2>十五、 Behavior Tag 完整行為字典</h2>
+    <h3>15.1 信任與關係類</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>標籤代碼</th><th>行為語意定義</th><th>AI 偵測邏輯</th></tr></thead>
+            <tbody>
+                <tr><td><code>TRUST_BUILDING_PATTERN</code></td><td>信任建立型</td><td>帳戶在大額轉帳前，有複數筆小額消費紀錄。</td></tr>
+                <tr><td><code>RELATIONSHIP_PAYMENT_PATTERN</code></td><td>既有關係支付</td><td>收款方與付款方在過去 180 天內有雙向金流往來。</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>15.2 帳戶受控與異常類</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>標籤代碼</th><th>行為語意定義</th><th>AI 偵測邏輯</th></tr></thead>
+            <tbody>
+                <tr><td><code>ACCOUNT_CONTROL_PATTERN</code></td><td>帳戶受控特徵</td><td>操作時間極短、多處複製貼上、或高壓力時段操作。</td></tr>
+                <tr><td><code>DEVICE_TAKEOVER_PATTERN</code></td><td>裝置奪取模式</td><td>裝置指紋與常用地理位置發生瞬間位移。</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <h3>15.3 洗錢拓撲類</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>標籤代碼</th><th>行為語意定義</th><th>AI 偵測邏輯</th></tr></thead>
+            <tbody>
+                <tr><td><code>FUNNEL_PATTERN</code></td><td>漏斗歸集特徵</td><td>複數帳戶匯入單一帳戶，且金額加總接近整數。</td></tr>
+                <tr><td><code>LAYERING_PATTERN</code></td><td>分層剝離特徵</td><td>資金在極短時間內經過多層級（Level 3+）轉發。</td></tr>
+                <tr><td><code>RAPID_DRAIN_PATTERN</code></td><td>快速排乾行為</td><td>入帳後 5 分鐘內，餘額消耗率超過 95%。</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="glass-panel warning">
+        <strong>💡 工程實作註記：</strong> 當 <code>TRUST_BUILDING_PATTERN</code> 出現時，應自動調高信心感度。
+    </div>
+
+    <h2>十六、 AI 模型訓練資料集設計</h2>
+    <h3>16.1 特徵組件 (Feature Sets)</h3>
+    <div class="table-container">
+        <table>
+            <thead><tr><th>類別</th><th>欄位名稱</th><th>定義與轉換邏輯</th><th>資料類型</th></tr></thead>
+            <tbody>
+                <tr><td>時序(T)</td><td><code>t_freq_1h</code></td><td>1 小時內交易次數</td><td>Integer</td></tr>
+                <tr><td>拓撲(G)</td><td><code>g_mule_link_dist</code></td><td>與黑名單最短路徑距離</td><td>Integer</td></tr>
+                <tr><td>環境(R)</td><td><code>r_is_new_device</code></td><td>是否為 24h 內新裝置</td><td>Boolean</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="flowchart-container">
+        <h2 style="text-align:center; border:none; margin-top:0;">Risk Box 即時決策鏈</h2>
+        <div class="flow-step">1. 報文輸入層 (ISO-8583 / ISO-20022)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">2. 資料預取 (Context Pre-fetch from Cache)</div>
+        <div class="flow-arrow">↓</div>
+        <div class="parallel-grid">
+            <div class="flow-step score-engine">3a. Risk Score</div>
+            <div class="flow-step conf-engine">3b. Confidence</div>
+            <div class="flow-step tag-engine">3c. AI Filter</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="decision-diamond"><div class="decision-text">三維決策<br>融合</div></div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step" style="border-color: var(--accent-red);">4. 事件輸出 (Event Level 0-3)</div>
+    </div>
+
     <div class="risk-box-viz">
         <div style="position: absolute; top: 20px; color: var(--accent-blue); font-weight: bold; font-size: 18px; z-index: 10;">
             Risk Box 三維判斷矩陣
         </div>
         <div class="scene">
-            <div class="axis axis-x">
-                <span class="axis-label label-x">Risk Score →</span>
-            </div>
-            <div class="axis axis-y">
-                <span class="axis-label label-y">Confidence ↑</span>
-            </div>
-            <div class="axis axis-z">
-                <span class="axis-label label-z">AI Filter ↗</span>
-            </div>
+            <div class="axis axis-x"><span class="axis-label" style="right: -80px; top: -5px; color: var(--accent-red);">Risk Score →</span></div>
+            <div class="axis axis-y"><span class="axis-label" style="right: -100px; top: -5px; color: var(--accent-green);">Confidence ↑</span></div>
+            <div class="axis axis-z"><span class="axis-label" style="right: -90px; top: -5px; color: var(--accent-blue);">AI Filter ↗</span></div>
+            
             <div class="cube">
                 <div class="face face-front"></div>
                 <div class="face face-back"></div>
