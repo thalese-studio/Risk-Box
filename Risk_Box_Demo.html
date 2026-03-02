@@ -107,6 +107,12 @@ th,td{
 </div>
 
 <div class="section">
+<p style="color:#94a3b8;font-size:13px">
+輸入格式範例：<br>
+IP：192.168.1.1<br>
+帳號：A123456789<br>
+多筆請換行輸入
+</p>
 <h3>③ 名單管理</h3>
 
 <label>白名單 (帳號)</label>
@@ -214,6 +220,7 @@ function runRisk(){
     let adjust=0;
 
     // 情境風險
+    if(scenario==="normal") baseRisk=5;   // 基準行為風險
     if(scenario==="mule") baseRisk=60;
     if(scenario==="fraud") baseRisk=80;
     if(scenario==="control") baseRisk=90;
