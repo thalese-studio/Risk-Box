@@ -101,6 +101,7 @@ th,td{
 </select>
 
 <button onclick="generateRandom()">自動亂數產生</button>
+<button onclick="simulateBatch()">模擬多筆連續交易</button>
 <button onclick="confirmData()">確認產出模擬資料</button>
 
 <table id="resultTable"></table>
@@ -150,6 +151,37 @@ IP：192.168.1.1<br>
 </div>
 
 <div class="section">
+<h3>⑥ 情境風險判定依據</h3>
+<table id="scenarioExplain">
+<tr>
+<th>判定維度</th>
+<th>觸發條件</th>
+<th>是否命中</th>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h3>⑦ 特徵來源說明（銀行簡報版）</h3>
+<table id="featureSourceTable">
+<tr>
+<th>特徵項目</th>
+<th>是否命中</th>
+<th>依據說明</th>
+<th>來源類型</th>
+</tr>
+</table>
+</div>
+
+<div class="section">
+<h3>⑧ 風險信心指數</h3>
+<div id="confidenceBox" style="font-size:20px;font-weight:bold;"></div>
+<div style="background:#334155;height:20px;border-radius:10px;margin-top:10px;">
+<div id="confidenceBar" style="height:20px;width:0%;background:#22c55e;border-radius:10px;"></div>
+</div>
+</div>
+    
+<div class="section">
 <h3>背景 Log 紀錄</h3>
 <div class="logbox" id="logbox"></div>
 </div>
@@ -172,6 +204,34 @@ function generateRandom(){
     let amount=Math.floor(Math.random()*100000)+100;
     let location=["台北","台中","高雄","新加坡","香港"][Math.floor(Math.random()*5)];
     let channel=["APP","ATM","網銀","轉帳","信用卡"][Math.floor(Math.random()*5)];
+
+    let batchHistory=[];
+        function simulateBatch(){
+        batchHistory=[];
+        let output="<tr><th>筆數</th><th>金額</th><th>IP</th><th>風險值</th></tr>";
+        for(let i=1;i<=10;i++){
+        let amt= Math.floor(Math.random()*20000)+10000;
+        let ip=randomIP();
+        let risk=0;
+
+        // 模擬高頻累積
+        risk += i*8;
+
+        // 模擬分批搬空
+        if(amt>15000) risk+=15;
+            
+        batchHistory.push(risk);
+        output +=
+        "<tr>"+
+        "<td>"+i+"</td>"+
+        "<td>"+amt+"</td>"+
+        "<td>"+ip+"</td>"+
+        "<td>"+risk+"</td>"+
+        "</tr>";
+        }
+        document.getElementById("resultTable").innerHTML=output;
+        log("啟動多筆詐騙模擬");
+        }
 
     if(scenario==="mule") amount=50000+Math.random()*50000;
     if(scenario==="fraud") amount=80000+Math.random()*100000;
@@ -212,24 +272,71 @@ function confirmData(){
 function runRisk(){
 
     let scenario=document.getElementById("scenario").value;
-
+    let behaviorFlag = false;
+    let frequencyFlag = false;
+    let geoFlag = false;
     let baseRisk=0;
     let amountRisk=0;
     let geoRisk=0;
     let listRisk=0;
     let adjust=0;
 
+    // ===== 信心指數 =====
+    let totalFeatures = 4;
+    let hitCount = 0;
+
+    if(behaviorFlag) hitCount++;
+    if(geoFlag) hitCount++;
+    if(frequencyFlag) hitCount++;
+    if(listRisk>0) hitCount++;
+
+    let confidence = Math.floor((hitCount/totalFeatures)*70);
+
+    if(listRisk>0) confidence += 30;
+
+    if(confidence>100) confidence=100;
+
+    // 顯示
+    document.getElementById("confidenceBox").innerHTML =
+    "Confidence Index: "+confidence+"%";
+
+    document.getElementById("confidenceBar").style.width =
+    confidence+"%";
+
+    // 顏色變化
+    if(confidence>70){
+    document.getElementById("confidenceBar").style.background="#ef4444";
+    }
+    else if(confidence>40){
+    document.getElementById("confidenceBar").style.background="#f59e0b";
+    }
+    else{
+    document.getElementById("confidenceBar").style.background="#22c55e";
+    }
+
     // 情境風險
     if(scenario==="normal") baseRisk=5;   // 基準行為風險
     if(scenario==="mule") baseRisk=60;
     if(scenario==="fraud") baseRisk=80;
     if(scenario==="control") baseRisk=90;
+    
 
     // 金額風險
     if(currentData.amount>80000) amountRisk=20;
+    if(currentData.amount > 80000){
+    behaviorFlag = true;
+    }
 
     // 地理風險
     if(currentData.location==="新加坡" || currentData.location==="香港") geoRisk=15;
+    if(currentData.location==="新加坡" || currentData.location==="香港"){
+    geoFlag = true;
+    }
+
+    // （模擬）高頻行為
+    if(Math.random() > 0.7){
+    frequencyFlag = true;
+    }
 
     // 名單機制
     let whitelist=document.getElementById("whitelist").value;
@@ -271,7 +378,52 @@ function log(msg){
     document.getElementById("logbox").innerHTML=logs.join("<br>");
 }
 
-</script>
+let featureTable = document.getElementById("featureSourceTable");
 
+featureTable.innerHTML =
+"<tr><th>特徵項目</th><th>是否命中</th><th>依據說明</th><th>來源類型</th></tr>"+
+
+// 大額異常
+"<tr>"+
+"<td>大額交易異常</td>"+
+"<td>"+(behaviorFlag?"✔":"✖")+"</td>"+
+"<td>高於內部 AML 監控門檻 (80,000)</td>"+
+"<td>監理規範依據</td>"+
+"</tr>"+
+
+// 跨境地區
+"<tr>"+
+"<td>跨境/高風險地區</td>"+
+"<td>"+(geoFlag?"✔":"✖")+"</td>"+
+"<td>列入高風險地區監控清單</td>"+
+"<td>監理規範依據</td>"+
+"</tr>"+
+
+// 高頻
+"<tr>"+
+"<td>短時間高頻交易</td>"+
+"<td>"+(frequencyFlag?"✔":"✖")+"</td>"+
+"<td>歷史詐騙案例常見模式</td>"+
+"<td>歷史案例分析</td>"+
+"</tr>"+
+
+// 行為偏離（示意）
+"<tr>"+
+"<td>客戶行為偏離</td>"+
+"<td>"+(behaviorFlag?"✔":"✖")+"</td>"+
+"<td>本次金額顯著高於歷史平均</td>"+
+"<td>行為統計分析</td>"+
+"</tr>"+
+
+// 黑名單
+"<tr>"+
+"<td>風險情報命中</td>"+
+"<td>"+(listRisk>0?"✔":"✖")+"</td>"+
+"<td>比對內外部風險情報資料庫</td>"+
+"<td>風險情報資料</td>"+
+"</tr>";
+    
+</script>
+    
 </body>
 </html>
