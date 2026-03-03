@@ -205,10 +205,10 @@ else{
     decision="正常交易";
 }
 
-    document.getElementById("compareBox").innerHTML=
-    "無 Risk Box： "+noRiskBox+"<br>"+
-    "有 Risk Box： "+withRiskBox+"<br>"+
-    "風險分數： "+risk;
+document.getElementById("compareBox").innerHTML=
+"無 Risk Box： "+noRiskBox+"<br>"+
+"有 Risk Box： "+decision+"<br>"+
+"風險分數： "+risk;
 
     let confidence=Math.floor((hit/3)*80);
     if(listFlag) confidence+=20;
@@ -228,7 +228,9 @@ else{
         document.getElementById("confidenceBar").style.background="#22c55e";
 
     let explain;
-
+    document.getElementById("confidenceText").innerHTML=
+    "Confidence Index："+confidence+"%<br>"+explain;
+    
     if(confidence==0){
         explain="符合 正常一般行為特徵。暫無異常";
     }
@@ -254,10 +256,10 @@ function simulateBatch(){
 
     for(let i=1;i<=12;i++){
         
+        let amount=10000+(i*3000);
         if(amount > accountBalance){
         break; // 停止交易
         }
-        let amount=10000+(i*3000);
         accountBalance-=amount;
         if(accountBalance<0) accountBalance=0;
 
@@ -282,17 +284,16 @@ function simulateBatch(){
         "<td>"+ip+"</td>"+
         "<td style='color:"+(cumulative>70?"#ef4444":"#f59e0b")+"'>"+cumulative+"</td>"+
         "</tr>";
+        transactionLog.push({
+        time:(22+i)+":00",
+        amount:amount,
+        balance:accountBalance,
+        risk:cumulative
+        });
     }
 
     document.getElementById("resultTable").innerHTML+=output;
     log("啟動多筆連續行為分析");
-   
-        transactionLog.push({
-        time,
-        amount,
-        balance,
-        risk
-        });
     
     
 }
