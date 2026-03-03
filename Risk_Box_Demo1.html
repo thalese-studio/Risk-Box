@@ -42,12 +42,14 @@ input,select,textarea{
 
 <body>
 
-<h2>Risk Box – 多筆連續行為分析引擎</h2>
+<h2>Risk Box – 多筆連續行為分析引擎<BR>
+    本系統支援自定義交易條件模擬，用於壓力測試與模型驗證。
+</h2>
 
 <div class="section">
 <h3>① 選擇模擬情境</h3>
 <select id="scenario">
-<option value="normal">正常交易</option>
+<option value="custom">自定義情境</option>
 <option value="mule">人頭戶洗錢</option>
 <option value="fraud">複合式詐騙</option>
 <option value="control">長期控制+分批搬空</option>
@@ -58,7 +60,10 @@ input,select,textarea{
 
 <div class="section">
 <h3>② ISO 報文輸入層 (模擬)</h3>
-金額 <input id="amount"><br>
+交易時間 
+<input type="time" id="txTime"><br>
+金額
+<input id="amount"><br>
 地點 
 <select id="location">
 <option>台灣</option>
@@ -121,6 +126,7 @@ let accountBalance=300000;
 let previousRisk=0;
 let baseIP="";
 let batchHistory=[];
+let transactionLog=[];
 
 function log(msg){
     document.getElementById("logBox").innerHTML += 
@@ -142,6 +148,7 @@ function generateRandom(){
 
 function confirmData(){
     currentData={
+        time: document.getElementById("txTime").value,
         amount: parseFloat(document.getElementById("amount").value),
         location: document.getElementById("location").value,
         channel: document.getElementById("channel").value,
@@ -183,7 +190,20 @@ function runRisk(){
     if(risk>100) risk=100;
 
     let noRiskBox="核准交易";
-    let withRiskBox= risk>60 ? "攔截交易" : "人工審核";
+    let decision;
+
+if(risk >= 80){
+    decision="建議 人工查核 ";
+}
+else if(risk >= 40){
+    decision="建議 OTP驗證 ";
+}
+    else if(risk >= 20){
+    decision="建議 紀錄觀察 ";
+}
+else{
+    decision="正常交易";
+}
 
     document.getElementById("compareBox").innerHTML=
     "無 Risk Box： "+noRiskBox+"<br>"+
@@ -207,7 +227,20 @@ function runRisk(){
     else
         document.getElementById("confidenceBar").style.background="#22c55e";
 
+    let explain;
+
+    if(confidence==0){
+        explain="符合 正常一般行為特徵。暫無異常";
+    }
+    else if(confidence<50){
+        explain="命中部分 異常特徵，建議持續關注。懷疑中";
+    }
+    else{
+        explain="多項 異常特徵 命中，信心把握度 極高。";
+    }
+
     log("完成單筆風險分析");
+    
 }
 
 function simulateBatch(){
@@ -220,7 +253,10 @@ function simulateBatch(){
     let output="<tr><th>筆</th><th>時間</th><th>金額</th><th>餘額</th><th>IP</th><th>累積風險</th></tr>";
 
     for(let i=1;i<=12;i++){
-
+        
+        if(amount > accountBalance){
+        break; // 停止交易
+        }
         let amount=10000+(i*3000);
         accountBalance-=amount;
         if(accountBalance<0) accountBalance=0;
@@ -248,8 +284,17 @@ function simulateBatch(){
         "</tr>";
     }
 
-    document.getElementById("resultTable").innerHTML=output;
+    document.getElementById("resultTable").innerHTML+=output;
     log("啟動多筆連續行為分析");
+   
+        transactionLog.push({
+        time,
+        amount,
+        balance,
+        risk
+        });
+    
+    
 }
 
 </script>
