@@ -197,14 +197,6 @@ function randomIP(){
            Math.floor(Math.random()*255)+"."+
            Math.floor(Math.random()*255);
 }
-
-function generateRandom(){
-    let scenario=document.getElementById("scenario").value;
-
-    let amount=Math.floor(Math.random()*100000)+100;
-    let location=["台北","台中","高雄","新加坡","香港"][Math.floor(Math.random()*5)];
-    let channel=["APP","ATM","網銀","轉帳","信用卡"][Math.floor(Math.random()*5)];
-
     let batchHistory=[];
         function simulateBatch(){
         batchHistory=[];
@@ -232,6 +224,13 @@ function generateRandom(){
         document.getElementById("resultTable").innerHTML=output;
         log("啟動多筆詐騙模擬");
         }
+    
+function generateRandom(){
+    let scenario=document.getElementById("scenario").value;
+
+    let amount=Math.floor(Math.random()*100000)+100;
+    let location=["台北","台中","高雄","新加坡","香港"][Math.floor(Math.random()*5)];
+    let channel=["APP","ATM","網銀","轉帳","信用卡"][Math.floor(Math.random()*5)];
 
     if(scenario==="mule") amount=50000+Math.random()*50000;
     if(scenario==="fraud") amount=80000+Math.random()*100000;
@@ -296,24 +295,6 @@ function runRisk(){
 
     if(confidence>100) confidence=100;
 
-    // 顯示
-    document.getElementById("confidenceBox").innerHTML =
-    "Confidence Index: "+confidence+"%";
-
-    document.getElementById("confidenceBar").style.width =
-    confidence+"%";
-
-    // 顏色變化
-    if(confidence>70){
-    document.getElementById("confidenceBar").style.background="#ef4444";
-    }
-    else if(confidence>40){
-    document.getElementById("confidenceBar").style.background="#f59e0b";
-    }
-    else{
-    document.getElementById("confidenceBar").style.background="#22c55e";
-    }
-
     // 情境風險
     if(scenario==="normal") baseRisk=5;   // 基準行為風險
     if(scenario==="mule") baseRisk=60;
@@ -344,8 +325,26 @@ function runRisk(){
 
     if(blacklist.includes(currentData.ip)) listRisk=50;
     if(whitelist.length>0) adjust=-30;
-
+ 
     let totalRisk=baseRisk+amountRisk+geoRisk+listRisk+adjust;
+
+        // 顯示
+    document.getElementById("confidenceBox").innerHTML =
+    "Confidence Index: "+confidence+"%";
+
+    document.getElementById("confidenceBar").style.width =
+    confidence+"%";
+
+    // 顏色變化
+    if(confidence>70){
+    document.getElementById("confidenceBar").style.background="#ef4444";
+    }
+    else if(confidence>40){
+    document.getElementById("confidenceBar").style.background="#f59e0b";
+    }
+    else{
+    document.getElementById("confidenceBar").style.background="#22c55e";
+    }
 
     // 顯示比較結果
     let without="交易已完成<br>無任何風險判斷";
@@ -371,14 +370,8 @@ function runRisk(){
     log("Risk Box 風險組成："+JSON.stringify({
         baseRisk,amountRisk,geoRisk,listRisk,adjust,totalRisk
     }));
-}
-function log(msg){
-    let time=new Date().toLocaleTimeString();
-    logs.push(time+" - "+msg);
-    document.getElementById("logbox").innerHTML=logs.join("<br>");
-}
 
-let featureTable = document.getElementById("featureSourceTable");
+    let featureTable = document.getElementById("featureSourceTable");
 
 featureTable.innerHTML =
 "<tr><th>特徵項目</th><th>是否命中</th><th>依據說明</th><th>來源類型</th></tr>"+
@@ -423,6 +416,14 @@ featureTable.innerHTML =
 "<td>風險情報資料</td>"+
 "</tr>";
     
+}
+function log(msg){
+    let time=new Date().toLocaleTimeString();
+    logs.push(time+" - "+msg);
+    document.getElementById("logbox").innerHTML=logs.join("<br>");
+}
+
+
 </script>
     
 </body>
