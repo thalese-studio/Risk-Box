@@ -219,6 +219,17 @@ function runRisk(){
         hit++;
     }
 
+    // 聯動風險加權
+    if(
+        hour < 6 &&
+        accountType === "nonregistered" &&
+        currentData.amount >= 50000
+    ){
+        risk += 30;        // 聯動加權
+        behaviorScore += 30;
+        hit++;
+    }
+
     let accountType = document.getElementById("accountType").value;
 
     if(accountType === "nonregistered"){
@@ -273,18 +284,64 @@ function runRisk(){
     "行為風險："+behaviorScore+"<br>"+
     "環境風險："+envScore+"<br>"+
     "名單風險："+listScore;
+    
+    let accountControl = false;
 
-        let aiScore = Math.floor(
-        (behaviorScore*0.4) +
-        (envScore*0.3) +
-        (listScore*0.3)
-        );
+    if(hour < 6 && currentData.amount > 50000){
+        accountControl = true;
+    }
+
+    let funnelPattern = false;
+
+    if(batchHistory.length >= 5){
+        funnelPattern = true;
+    }
+
+    let rapidDrain = false;
+
+    if(accountBalance < 150000){
+        rapidDrain = true;
+    }
 
     document.getElementById("compareBox").innerHTML +=
-    "<br><br>【AI 三維評估】<br>"+
-    "AI 評估風險："+aiScore+"<br>"+
-    "權重： 行為40% / 環境30% / 名單30%";
+    "<br><br>【AI 行為模式辨識】<br>"+
+    "帳戶疑似非本人操作: "+(accountControl?"命中":"未命中")+"<br>"+
+    "資金快速彙集中: "+(funnelPattern?"命中":"未命中")+"<br>"+
+    "資金快速轉移中: "+(rapidDrain?"命中":"未命中");
+    
+    let probabilities = [];
 
+    if(listFlag){
+        probabilities.push(0.9);
+    }
+
+    if(accountControl || funnelPattern || rapidDrain){
+        probabilities.push(0.6);
+    }
+
+    if(currentData.amount > 80000){
+        probabilities.push(0.4);
+    }
+
+    // 計算 C = 1 - Π(1-p_i)
+    let product = 1;
+
+    probabilities.forEach(p=>{
+        product *= (1 - p);
+    });
+
+    let confidence = 1 - product;
+
+    confidence = Math.floor(confidence * 100);
+
+    document.getElementById("confidenceText").innerHTML =
+    "Confidence Index："+confidence+"%<br>"+
+    "公式： C = 1 - Π(1 - p_i)<br>"+
+    "使用可信度來源：<br>"+
+    "165黑名單: 0.9<br>"+
+    "行為模型: 0.6<br>"+
+    "金額異常: 0.4";
+    
     let totalFeatures = 6;
     let confidence = Math.floor((hit / totalFeatures) * 100);
     if(listFlag) confidence+=20;
@@ -303,6 +360,19 @@ function runRisk(){
         document.getElementById("confidenceBar").style.background="#f59e0b";
     else
         document.getElementById("confidenceBar").style.background="#22c55e";
+
+    let meetFeatures = [];
+
+    if(hour < 6) meetFeatures.push("夜間異常交易");
+    if(currentData.amount > 50000) meetFeatures.push("高額轉出");
+    if(accountType === "nonregistered") meetFeatures.push("非約定帳戶");
+    if(accountControl) meetFeatures.push("帳戶受控特徵");
+    if(funnelPattern) meetFeatures.push("漏斗歸集模式");
+    if(rapidDrain) meetFeatures.push("金流快速排乾");
+
+    document.getElementById("compareBox").innerHTML +=
+    "<br><br>【命中特徵】<br>"+
+    meetFeatures.join("<br>");
 
     log("完成單筆風險分析");
     
