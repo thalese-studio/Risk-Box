@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Risk Box 連續行為分析引擎 Demo</title>
+<style>
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    padding:20px;
+}
+.section{
+    background:#1e293b;
+    padding:20px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+button{
+    padding:8px 14px;
+    margin:5px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+}
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+th,td{
+    border:1px solid #334155;
+    padding:6px;
+    text-align:center;
+}
+input,select,textarea{
+    padding:6px;
+    margin:4px;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Risk Box – 多筆連續行為分析引擎</h2>
+
+<div class="section">
+<h3>① 選擇模擬情境</h3>
+<select id="scenario">
+<option value="normal">正常交易</option>
+<option value="mule">人頭戶洗錢</option>
+<option value="fraud">複合式詐騙</option>
+<option value="control">長期控制+分批搬空</option>
+</select>
+<button onclick="generateRandom()">產生隨機交易</button>
+<button onclick="simulateBatch()">模擬多筆連續行為</button>
+</div>
+
+<div class="section">
+<h3>② ISO 報文輸入層 (模擬)</h3>
+金額 <input id="amount"><br>
+地點 
+<select id="location">
+<option>台灣</option>
+<option>新加坡</option>
+<option>香港</option>
+</select><br>
+通路
+<select id="channel">
+<option>APP</option>
+<option>ATM</option>
+<option>網銀</option>
+<option>信用卡</option>
+</select><br>
+IP <input id="ip"><br>
+<button onclick="confirmData()">確認產出模擬資料</button>
+</div>
+
+<div class="section">
+<h3>③ 名單管理（輸入範例）</h3>
+<p>每行一筆，例如：</p>
+<p>192.168.1.10<br>10.0.0.5</p>
+
+白名單<br>
+<textarea id="whitelist" rows="3" cols="40"></textarea><br>
+黑名單<br>
+<textarea id="blacklist" rows="3" cols="40"></textarea><br>
+保護名單<br>
+<textarea id="protectlist" rows="3" cols="40"></textarea><br>
+
+<button onclick="runRisk()">啟動 Risk Box 分析</button>
+</div>
+
+<div class="section">
+<h3>④ 有 / 無 Risk Box 比較</h3>
+<div id="compareBox"></div>
+</div>
+
+<div class="section">
+<h3>⑤ 信心指數</h3>
+<div id="confidenceText"></div>
+<div style="background:#334155;height:20px;border-radius:10px;">
+<div id="confidenceBar" style="height:20px;width:0%;background:#22c55e;border-radius:10px;"></div>
+</div>
+</div>
+
+<div class="section">
+<h3>⑥ 多筆行為分析結果</h3>
+<table id="resultTable"></table>
+</div>
+
+<div class="section">
+<h3>⑦ 系統 Log</h3>
+<div id="logBox" style="font-size:12px;"></div>
+</div>
+
+<script>
+
+let currentData=null;
+let accountBalance=300000;
+let previousRisk=0;
+let baseIP="";
+let batchHistory=[];
+
+function log(msg){
+    document.getElementById("logBox").innerHTML += 
+    new Date().toLocaleTimeString()+" - "+msg+"<br>";
+}
+
+function randomIP(){
+    return Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255);
+}
+
+function generateRandom(){
+    document.getElementById("amount").value = Math.floor(Math.random()*100000)+5000;
+    document.getElementById("ip").value = randomIP();
+    log("產生隨機交易資料");
+}
+
+function confirmData(){
+    currentData={
+        amount: parseFloat(document.getElementById("amount").value),
+        location: document.getElementById("location").value,
+        channel: document.getElementById("channel").value,
+        ip: document.getElementById("ip").value
+    };
+    log("確認單筆交易資料");
+}
+
+function runRisk(){
+
+    if(!currentData){ alert("請先確認資料"); return;}
+
+    let risk=0;
+    let hit=0;
+
+    let behaviorFlag=false;
+    let geoFlag=false;
+    let listFlag=false;
+
+    if(currentData.amount>80000){
+        risk+=30;
+        hit++;
+        behaviorFlag=true;
+    }
+
+    if(currentData.location==="新加坡" || currentData.location==="香港"){
+        risk+=20;
+        hit++;
+        geoFlag=true;
+    }
+
+    let blacklist=document.getElementById("blacklist").value.split(/\s+/);
+    if(blacklist.includes(currentData.ip)){
+        risk+=40;
+        hit++;
+        listFlag=true;
+    }
+
+    if(risk>100) risk=100;
+
+    let noRiskBox="核准交易";
+    let withRiskBox= risk>60 ? "攔截交易" : "人工審核";
+
+    document.getElementById("compareBox").innerHTML=
+    "無 Risk Box： "+noRiskBox+"<br>"+
+    "有 Risk Box： "+withRiskBox+"<br>"+
+    "風險分數： "+risk;
+
+    let confidence=Math.floor((hit/3)*80);
+    if(listFlag) confidence+=20;
+    if(confidence>100) confidence=100;
+
+    document.getElementById("confidenceText").innerHTML=
+    "Confidence Index："+confidence+"%";
+
+    document.getElementById("confidenceBar").style.width=
+    confidence+"%";
+
+    if(confidence>70)
+        document.getElementById("confidenceBar").style.background="#ef4444";
+    else if(confidence>40)
+        document.getElementById("confidenceBar").style.background="#f59e0b";
+    else
+        document.getElementById("confidenceBar").style.background="#22c55e";
+
+    log("完成單筆風險分析");
+}
+
+function simulateBatch(){
+
+    accountBalance=300000;
+    previousRisk=0;
+    baseIP=randomIP();
+    batchHistory=[];
+
+    let output="<tr><th>筆</th><th>時間</th><th>金額</th><th>餘額</th><th>IP</th><th>累積風險</th></tr>";
+
+    for(let i=1;i<=12;i++){
+
+        let amount=10000+(i*3000);
+        accountBalance-=amount;
+        if(accountBalance<0) accountBalance=0;
+
+        let ip= i<5?baseIP:randomIP();
+
+        let risk=0;
+
+        if(i>=3) risk+=15;
+        if(accountBalance<150000) risk+=20;
+        if(ip!==baseIP) risk+=25;
+        if(i>=6) risk+=15;
+
+        let cumulative=Math.floor(previousRisk*0.8 + risk);
+        if(cumulative>100) cumulative=100;
+        previousRisk=cumulative;
+
+        output+="<tr>"+
+        "<td>"+i+"</td>"+
+        "<td>"+(22+i)+":00</td>"+
+        "<td>"+amount+"</td>"+
+        "<td>"+accountBalance+"</td>"+
+        "<td>"+ip+"</td>"+
+        "<td style='color:"+(cumulative>70?"#ef4444":"#f59e0b")+"'>"+cumulative+"</td>"+
+        "</tr>";
+    }
+
+    document.getElementById("resultTable").innerHTML=output;
+    log("啟動多筆連續行為分析");
+}
+
+</script>
+
+</body>
+</html>
