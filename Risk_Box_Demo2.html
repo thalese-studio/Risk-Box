@@ -77,7 +77,15 @@ input,select,textarea{
 <option>網銀</option>
 <option>信用卡</option>
 </select><br>
+
+是否約定帳戶
+<select id="accountType">
+<option value="registered">約定帳戶</option>
+<option value="nonregistered">非約定帳戶</option>
+</select><br>
+
 IP <input id="ip"><br>
+    
 <button onclick="confirmData()">確認產出模擬資料</button>
 </div>
 
@@ -133,11 +141,27 @@ function log(msg){
     new Date().toLocaleTimeString()+" - "+msg+"<br>";
 }
 
-function randomIP(){
-    return Math.floor(Math.random()*255)+"."+
-           Math.floor(Math.random()*255)+"."+
-           Math.floor(Math.random()*255)+"."+
-           Math.floor(Math.random()*255);
+function generateIPByLocation(location){
+
+    if(location === "台灣"){
+        return "192.168."+
+        Math.floor(Math.random()*255)+"."+
+        Math.floor(Math.random()*255);
+    }
+
+    if(location === "新加坡"){
+        return "103."+
+        Math.floor(Math.random()*255)+"."+
+        Math.floor(Math.random()*255)+"."+
+        Math.floor(Math.random()*255);
+    }
+
+    if(location === "香港"){
+        return "45."+
+        Math.floor(Math.random()*255)+"."+
+        Math.floor(Math.random()*255)+"."+
+        Math.floor(Math.random()*255);
+    }
 }
 
 function generateRandom(){
@@ -152,7 +176,9 @@ function confirmData(){
         amount: parseFloat(document.getElementById("amount").value),
         location: document.getElementById("location").value,
         channel: document.getElementById("channel").value,
-        ip: document.getElementById("ip").value
+        ip: generateIPByLocation(
+        document.getElementById("location").value
+    )
     };
     log("確認單筆交易資料");
 }
@@ -164,14 +190,43 @@ function runRisk(){
     let risk=0;
     let hit=0;
 
+    let behaviorScore=0;
+    let envScore=0;
+    let listScore=0;
+
     let behaviorFlag=false;
     let geoFlag=false;
     let listFlag=false;
 
     if(currentData.amount>80000){
         risk+=30;
+        behaviorScore+=30;
         hit++;
         behaviorFlag=true;
+    }
+
+    // === 新增時間風險 ===
+    let hour = parseInt(currentData.time.split(":")[0]);
+
+    if(hour >= 0 && hour < 6){
+        risk += 25;
+        behaviorScore += 25;
+        hit++;
+    }
+    else if(hour >= 23){
+        risk += 15;
+        behaviorScore += 15;
+        hit++;
+    }
+
+    let accountType = document.getElementById("accountType").value;
+
+    if(accountType === "nonregistered"){
+        if(currentData.amount > 50000){
+            risk += 40;
+            behaviorScore += 40;
+            hit++;
+        }
     }
 
     if(currentData.location==="新加坡" || currentData.location==="香港"){
@@ -211,14 +266,33 @@ function runRisk(){
     document.getElementById("compareBox").innerHTML=
     "無 Risk Box： "+noRiskBox+"<br>"+
     "有 Risk Box： "+decision+"<br>"+
-    "風險分數： "+risk;
+    "風險分數： "+risk+"<br><br>"+
 
-    let confidence=Math.floor((hit/3)*80);
+    "【風險計算架構】<br>"+
+    "總風險 = 行為風險 + 環境風險 + 名單風險<br>"+
+    "行為風險："+behaviorScore+"<br>"+
+    "環境風險："+envScore+"<br>"+
+    "名單風險："+listScore;
+
+        let aiScore = Math.floor(
+        (behaviorScore*0.4) +
+        (envScore*0.3) +
+        (listScore*0.3)
+        );
+
+    document.getElementById("compareBox").innerHTML +=
+    "<br><br>【AI 三維評估】<br>"+
+    "AI 評估風險："+aiScore+"<br>"+
+    "權重： 行為40% / 環境30% / 名單30%";
+
+    let totalFeatures = 6;
+    let confidence = Math.floor((hit / totalFeatures) * 100);
     if(listFlag) confidence+=20;
     if(confidence>100) confidence=100;
 
     document.getElementById("confidenceText").innerHTML=
-    "Confidence Index："+confidence+"%";
+    "Confidence Index："+confidence+"%<br>"+
+    "命中特徵："+hit+" / "+totalFeatures;
 
     document.getElementById("confidenceBar").style.width=
     confidence+"%";
