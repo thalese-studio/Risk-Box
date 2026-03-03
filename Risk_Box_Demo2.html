@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Risk Box 連續行為分析引擎 Demo</title>
+<style>
+body { background: #0f172a; color: white; font-family: "Microsoft JhengHei", Arial, sans-serif; padding: 20px; line-height: 1.5; }
+h2 { color: #00d4ff; border-bottom: 2px solid #334155; padding-bottom: 10px; margin-bottom: 20px; }
+.section { background: #1e293b; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #334155; }
+.flex-container { display: flex; gap: 20px; flex-wrap: wrap; }
+.flex-item { flex: 1; min-width: 320px; }
+button { padding: 10px 16px; margin: 5px 2px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+.btn-primary { background: #00d4ff; color: #0f172a; }
+.btn-run { background: #22c55e; color: white; width: 100%; margin-top: 10px; font-size: 1.1em; }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; background: #0f172a; }
+th { background: #334155; color: #00d4ff; }
+th, td { border: 1px solid #334155; padding: 10px; text-align: center; font-size: 14px; }
+input, select, textarea { background: #0f172a; color: white; border: 1px solid #475569; padding: 8px; border-radius: 4px; width: calc(100% - 20px); margin-bottom: 10px; }
+.log-box { background: #000; color: #22c55e; padding: 10px; border-radius: 6px; height: 150px; overflow-y: auto; font-family: monospace; border: 1px solid #334155; font-size: 12px; }
+.risk-high { color: #ef4444; font-weight: bold; }
+.label-tag { font-size: 0.9em; color: #94a3b8; display: block; margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<h2>Risk Box – 多筆連續行為分析引擎
+
+
+
+<small style="font-size: 0.5em; color: #94a3b8;">支援自定義交易條件模擬，用於壓力測試與模型驗證</small>
+</h2>
+
+<div class="flex-container">
+<div class="flex-item">
+<div class="section">
+<span class="label-tag">① 選擇模擬情境</span>
+<select id="scenario" onchange="autoFillScenario()">
+<option value="custom">自定義情境</option>
+<option value="mule">人頭戶洗錢 (大額進出)</option>
+<option value="control">584qu04 (長期控制+分批搬空)</option>
+</select>
+<button class="btn-primary" onclick="generateRandom()">隨機產生資料</button>
+<hr style="border:0; border-top:1px solid #334155; margin:15px 0;">
+
+  <span class="label-tag">② ISO 報文輸入層 (模擬)</span>
+        交易時間 <input type="time" id="txTime" value="14:30">
+        金額 <input type="number" id="amount" placeholder="輸入交易金額">
+        地點 <select id="location"><option>台灣</option><option>新加坡</option><option>柬埔寨</option></select>
+        通路 <select id="channel"><option>APP</option><option>ATM</option><option>網銀</option></select>
+        IP 位址 <input id="ip" placeholder="例如: 114.34.5.12">
+        <button class="btn-primary" onclick="confirmData()">確認產出模擬資料</button>
+    </div>
+</div>
+<div class="flex-item">
+    <div class="section">
+        <span class="label-tag">③ 名單管理（輸入範例）</span>
+        白名單<textarea id="whitelist" rows="2" placeholder="每行一筆 IP"></textarea>
+        黑名單<textarea id="blacklist" rows="2">210.61.12.5</textarea>
+        保護名單<textarea id="protectlist" rows="2"></textarea>
+        <button class="btn-run" onclick="runRisk()">啟動 Risk Box 分析</button>
+    </div>
+
+    <div class="section">
+        <span class="label-tag">④ 有 / 無 Risk Box 比較</span>
+        <div id="compareBox" style="min-height: 60px; padding: 10px; background: #0f172a; border-radius: 4px;">
+            等待分析指令...
+        </div>
+        <hr style="border:0; border-top:1px solid #334155; margin:15px 0;">
+        <span class="label-tag">⑤ 信心指數</span>
+        <div id="confidenceText" style="font-size: 13px; margin-bottom: 5px;">Confidence Index：0%</div>
+        <div style="background:#0f172a; height:15px; border-radius:10px; border:1px solid #334155;">
+            <div id="confidenceBar" style="height:100%; width:0%; background:#22c55e; border-radius:10px; transition: 0.5s;"></div>
+        </div>
+    </div>
+</div>
+</div>
+
+<div class="section">
+<span class="label-tag">⑥ 多筆行為分析結果 (584qu04 壓力測試)</span>
+<button class="btn-primary" onclick="simulateBatch()">模擬連續 12 筆小額搬空行為</button>
+<table id="resultTable">
+<thead>
+<tr><th>筆</th><th>時間</th><th>金額</th><th>餘額</th><th>IP</th><th>累積風險分數</th></tr>
+</thead>
+<tbody id="resultBody"></tbody>
+</table>
+</div>
+
+<div class="section">
+<span class="label-tag">⑦ 系統 Log</span>
+<div id="logBox" class="log-box"></div>
+</div>
+<script>
+let currentData = null;
+let transactionLog = [];
+
+function log(msg) {
+const box = document.getElementById("logBox");
+box.innerHTML += &lt;div&gt;&lt;span style=&quot;color:#64748b&quot;&gt;[${new Date().toLocaleTimeString()}]&lt;/span&gt; ${msg}&lt;/div&gt;;
+box.scrollTop = box.scrollHeight;
+}
+
+function randomIP() {
+return Array.from({length: 4}, () => Math.floor(Math.random() * 256)).join('.');
+}
+
+function autoFillScenario() {
+const sc = document.getElementById("scenario").value;
+if(sc === 'control') {
+document.getElementById("amount").value = 950;
+document.getElementById("txTime").value = "02:15";
+document.getElementById("location").value = "台灣";
+log("已加載情境 [584qu04]：特徵為深夜小額交易。");
+} else if (sc === 'mule') {
+document.getElementById("amount").value = 150000;
+document.getElementById("location").value = "台灣";
+log("已加載情境 [人頭戶]：特徵為大額進出。");
+}
+}
+
+function generateRandom() {
+document.getElementById("amount").value = Math.floor(Math.random() * 80000) + 1000;
+document.getElementById("ip").value = randomIP();
+document.getElementById("txTime").value = String(Math.floor(Math.random()*24)).padStart(2,'0') + ":" + String(Math.floor(Math.random()*60)).padStart(2,'0');
+log("產生隨機單筆模擬資料。");
+}
+
+function confirmData() {
+currentData = {
+time: document.getElementById("txTime").value,
+amount: parseFloat(document.getElementById("amount").value) || 0,
+location: document.getElementById("location").value,
+channel: document.getElementById("channel").value,
+ip: document.getElementById("ip").value
+};
+log(資料確認完成：ID: TXN-${Math.floor(Math.random()*1000)} / 金額: ${currentData.amount});
+}
+
+function runRisk() {
+if(!currentData) { alert("請先點擊『確認產出模擬資料』"); return; }
+
+let risk = 0;
+let hitFactors = [];
+
+// 風險權值計算
+if(currentData.amount &gt; 50000) { risk += 30; hitFactors.push(&quot;大額交易&quot;); }
+if(currentData.location !== &quot;台灣&quot;) { risk += 25; hitFactors.push(&quot;跨境異常&quot;); }
+
+const blacklist = document.getElementById(&quot;blacklist&quot;).value;
+if(blacklist &amp;&amp; currentData.ip &amp;&amp; blacklist.includes(currentData.ip)) {
+    risk += 45;
+    hitFactors.push(&quot;黑名單 IP&quot;);
+}
+
+const sc = document.getElementById(&quot;scenario&quot;).value;
+if(sc === &#39;control&#39; &amp;&amp; currentData.amount &lt; 1000) {
+    risk += 20;
+    hitFactors.push(&quot;疑似搬空前哨測試&quot;);
+}
+
+risk = Math.min(100, risk);
+let decision = risk &gt;= 75 ? &quot;&lt;span class=&#39;risk-high&#39;&gt;拒絕交易 (Level 3)&lt;/span&gt;&quot; : 
+               risk &gt;= 40 ? &quot;&lt;span style=&#39;color:#f59e0b&#39;&gt;OTP 強制驗證 (Level 2)&lt;/span&gt;&quot; : &quot;放行 (Level 0)&quot;;
+
+document.getElementById(&quot;compareBox&quot;).innerHTML = `
+    &lt;span style=&quot;color:#94a3b8&quot;&gt;無 Risk Box：&lt;/span&gt;核准交易 (未達門檻)<br>
+    &lt;span style=&quot;color:#00d4ff&quot;&gt;有 Risk Box：&lt;/span&gt;${decision}<br>
+    &lt;span style=&quot;color:#00d4ff&quot;&gt;命中因子：&lt;/span&gt;${hitFactors.length &gt; 0 ? hitFactors.join(&#39;, &#39;) : &#39;無&#39;}
+`;
+
+// 信心指數計算
+let confidence = risk &gt; 0 ? (40 + risk * 0.6) : 0;
+let explain = confidence &gt; 70 ? &quot;多項異常特徵命中，信心極高。&quot; : 
+              confidence &gt; 0 ? &quot;命中部分特徵，建議觀察。&quot; : &quot;正常一般行為。&quot;;
+
+document.getElementById(&quot;confidenceText&quot;).innerHTML = `Confidence Index：${Math.floor(confidence)}%<br>&lt;small&gt;${explain}&lt;/small&gt;`;
+document.getElementById(&quot;confidenceBar&quot;).style.width = confidence + &quot;%&quot;;
+document.getElementById(&quot;confidenceBar&quot;).style.background = confidence &gt; 70 ? &quot;#ef4444&quot; : &quot;#22c55e&quot;;
+
+log(&quot;單筆分析完成。&quot;);
+  }
+
+function simulateBatch() {
+let balance = 300000;
+let prevRisk = 0;
+let baseIP = randomIP();
+let body = "";
+document.getElementById("resultBody").innerHTML = "";
+  log(&quot;啟動多筆連續行為分析：模擬 584qu04 搬空攻擊。&quot;);
+
+for(let i = 1; i &lt;= 12; i++) {
+    let amt = 800 + (Math.random() * 500); 
+    balance -= amt;
+    let curIP = i &gt; 6 ? randomIP() : baseIP; 
+    
+    let stepRisk = 10;
+    if(i &gt; 4) stepRisk += 15; // 頻率偵測
+    if(curIP !== baseIP) stepRisk += 35; // 設備跳轉
+    if(balance &lt; 50000) stepRisk += 20; // 餘額水位預警
+
+    let cumulative = Math.min(100, Math.floor(prevRisk * 0.6 + stepRisk));
+    prevRisk = cumulative;
+
+    body += `&lt;tr&gt;
+        &lt;td&gt;${i}&lt;/td&gt;
+        &lt;td&gt;02:${String(i*2).padStart(2,&#39;0&#39;)}&lt;/td&gt;
+        &lt;td&gt;$${amt.toFixed(0)}&lt;/td&gt;
+        &lt;td&gt;$${balance.toFixed(0)}&lt;/td&gt;
+        &lt;td&gt;${curIP}&lt;/td&gt;
+        &lt;td class=&quot;${cumulative &gt; 70 ? &#39;risk-high&#39; : &#39;&#39;}&quot;&gt;${cumulative}&lt;/td&gt;
+    &lt;/tr&gt;`;
+}
+document.getElementById(&quot;resultBody&quot;).innerHTML = body;
+log(&quot;連續行為分析完成：判定為自動化指令搬空。&quot;);
+  }
+</script>
+
+</body>
+</html>
