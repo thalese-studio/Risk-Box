@@ -85,6 +85,12 @@ input,select,textarea{
 </select><br>
 
 IP <input id="ip"><br>
+<small>
+區域 IP 模擬範圍說明：<br>
+台灣：192.168.x.x (內網模擬)<br>
+新加坡：103.x.x.x<br>
+香港：45.x.x.x
+</small><br>
     
 <button onclick="confirmData()">確認產出模擬資料</button>
 </div>
@@ -178,7 +184,13 @@ function confirmData(){
         channel: document.getElementById("channel").value,
         ip: generateIPByLocation(
         document.getElementById("location").value
-    )
+        )
+        function randomIP(){
+        return Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255);
+}
     };
     log("確認單筆交易資料");
 }
@@ -218,7 +230,9 @@ function runRisk(){
         behaviorScore += 15;
         hit++;
     }
-
+    
+let accountType = document.getElementById("accountType").value;
+    
     // 聯動風險加權
     if(
         hour < 6 &&
@@ -230,9 +244,7 @@ function runRisk(){
         hit++;
     }
 
-    let accountType = document.getElementById("accountType").value;
-
-    if(accountType === "nonregistered"){
+        if(accountType === "nonregistered"){
         if(currentData.amount > 50000){
             risk += 40;
             behaviorScore += 40;
@@ -242,6 +254,7 @@ function runRisk(){
 
     if(currentData.location==="新加坡" || currentData.location==="香港"){
         risk+=20;
+        envScore+=20;
         hit++;
         geoFlag=true;
     }
@@ -252,6 +265,7 @@ function runRisk(){
 
     if(blacklist.includes(currentData.ip)){
         risk+=40;
+        listScore+=40;
         hit++;
         listFlag=true;
     }
@@ -342,15 +356,6 @@ function runRisk(){
     "行為模型: 0.6<br>"+
     "金額異常: 0.4";
     
-    let totalFeatures = 6;
-    let confidence = Math.floor((hit / totalFeatures) * 100);
-    if(listFlag) confidence+=20;
-    if(confidence>100) confidence=100;
-
-    document.getElementById("confidenceText").innerHTML=
-    "Confidence Index："+confidence+"%<br>"+
-    "命中特徵："+hit+" / "+totalFeatures;
-
     document.getElementById("confidenceBar").style.width=
     confidence+"%";
 
