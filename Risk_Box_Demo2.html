@@ -169,6 +169,12 @@ function generateIPByLocation(location){
         Math.floor(Math.random()*255);
     }
 }
+ function randomIP(){
+    return Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255)+"."+
+           Math.floor(Math.random()*255);
+}
 
 function generateRandom(){
     document.getElementById("amount").value = Math.floor(Math.random()*100000)+5000;
@@ -182,16 +188,12 @@ function confirmData(){
         amount: parseFloat(document.getElementById("amount").value),
         location: document.getElementById("location").value,
         channel: document.getElementById("channel").value,
-        ip: generateIPByLocation(
+        ip: document.getElementById("ip").value || 
+        generateIPByLocation(
         document.getElementById("location").value
         )
-        function randomIP(){
-        return Math.floor(Math.random()*255)+"."+
-           Math.floor(Math.random()*255)+"."+
-           Math.floor(Math.random()*255)+"."+
-           Math.floor(Math.random()*255);
-}
     };
+    
     log("確認單筆交易資料");
 }
 
@@ -210,7 +212,7 @@ function runRisk(){
     let geoFlag=false;
     let listFlag=false;
 
-    if(currentData.amount>80000){
+    if(currentData.amount>50000){
         risk+=30;
         behaviorScore+=30;
         hit++;
@@ -246,8 +248,8 @@ let accountType = document.getElementById("accountType").value;
 
         if(accountType === "nonregistered"){
         if(currentData.amount > 50000){
-            risk += 40;
-            behaviorScore += 40;
+            risk += 20;
+            behaviorScore += 20;
             hit++;
         }
     }
@@ -313,7 +315,7 @@ let accountType = document.getElementById("accountType").value;
 
     let rapidDrain = false;
 
-    if(accountBalance < 150000){
+    if(transactionLog.length >= 5 && accountBalance < 0.5 * 300000){
         rapidDrain = true;
     }
 
@@ -333,7 +335,7 @@ let accountType = document.getElementById("accountType").value;
         probabilities.push(0.6);
     }
 
-    if(currentData.amount > 80000){
+    if(currentData.amount > 50000){
         probabilities.push(0.4);
     }
 
@@ -366,6 +368,12 @@ let accountType = document.getElementById("accountType").value;
     else
         document.getElementById("confidenceBar").style.background="#22c55e";
 
+    if(confidence === 0){
+        document.getElementById("confidenceBar").innerHTML +=
+        "<br><br>說明：0% 表示 找不到 任何 可以相信的 模型，"+
+        "條件，不代表 零 風險。";
+    }
+
     let meetFeatures = [];
 
     if(hour < 6) meetFeatures.push("夜間異常交易");
@@ -394,8 +402,10 @@ function simulateBatch(){
     let output="<tr><th>筆</th><th>時間</th><th>金額</th><th>餘額</th><th>IP</th><th>累積風險</th></tr>";
 
     for(let i=1;i<=12;i++){
-        
+  
         let amount=10000+(i*3000);
+
+        batchHistory.push(amount);
 
         if(amount > accountBalance){
             break;
