@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risk Box Demo</title>
+    <!-- Tailwind CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Custom styles for animation and layout */
+        .pipeline-arrow {
+            transition: all 0.5s ease-in-out;
+            opacity: 0;
+            transform: translateX(-20px);
+        }
+        .pipeline-arrow.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .pipeline-box {
+            min-height: 120px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+
+    <div class="container mx-auto p-8">
+        <h1 class="text-4xl font-bold text-center text-blue-800 mb-12">Risk Box Architecture Demo</h1>
+
+        <!-- Interactive Demo Buttons -->
+        <div class="flex justify-center space-x-6 mb-12">
+            <button id="simulateTransactionBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Simulate Bank Transaction</button>
+            <button id="simulateBehaviorBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Simulate User Behavior</button>
+            <button id="resetDemoBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Reset Demo</button>
+        </div>
+
+        <!-- Pipeline Visualization -->
+        <div class="flex flex-col md:flex-row items-center justify-around space-y-8 md:space-y-0 md:space-x-8 mb-16">
+
+            <!-- Input Stage -->
+            <div id="inputStage" class="pipeline-box bg-white p-6 rounded-xl shadow-xl border-t-4 border-blue-500 w-full md:w-1/3 flex flex-col justify-center items-center relative">
+                <h2 class="text-2xl font-semibold text-blue-700 mb-4">INPUT</h2>
+                <div class="text-gray-700 space-y-2 text-center">
+                    <p class="input-item" id="input1">Bank Transaction Message</p>
+                    <p class="input-item" id="input2">ISO20022 / SWIFT MT Data</p>
+                    <p class="input-item" id="input3">User Behavior Signals</p>
+                </div>
+                 <div id="inputActivity" class="absolute top-2 right-2 text-green-500 text-sm font-bold opacity-0 transition-opacity duration-300">Receiving...</div>
+            </div>
+
+            <!-- Arrow 1 -->
+            <div id="arrow1" class="pipeline-arrow text-5xl text-gray-400 rotate-90 md:rotate-0">&rarr;</div>
+
+            <!-- Process Stage -->
+            <div id="processStage" class="pipeline-box bg-white p-6 rounded-xl shadow-xl border-t-4 border-purple-500 w-full md:w-1/3 flex flex-col justify-center items-center relative">
+                <h2 class="text-2xl font-semibold text-purple-700 mb-4">PROCESS</h2>
+                <div class="text-gray-700 space-y-2 text-center">
+                    <p class="process-item" id="process1">Risk Box AI Engine</p>
+                    <p class="process-item" id="process2">3D Risk Evaluation</p>
+                    <p class="process-item" id="process3">Risk Scoring Model</p>
+                    <p class="process-item" id="process4">Anomaly Detection</p>
+                </div>
+                <div id="processActivity" class="absolute top-2 right-2 text-purple-500 text-sm font-bold opacity-0 transition-opacity duration-300">Analyzing...</div>
+            </div>
+
+            <!-- Arrow 2 -->
+            <div id="arrow2" class="pipeline-arrow text-5xl text-gray-400 rotate-90 md:rotate-0">&rarr;</div>
+
+            <!-- Output Stage -->
+            <div id="outputStage" class="pipeline-box bg-white p-6 rounded-xl shadow-xl border-t-4 border-green-500 w-full md:w-1/3 flex flex-col justify-center items-center relative">
+                <h2 class="text-2xl font-semibold text-green-700 mb-4">OUTPUT</h2>
+                <div class="text-gray-700 space-y-2 text-center mb-4">
+                    <p class="output-item" id="output1">Risk Score: <span id="riskScoreValue" class="font-bold text-lg text-red-600">N/A</span></p>
+                    <p class="output-item" id="output2">Alert Level: <span id="alertLevelValue" class="font-bold text-lg text-yellow-600">N/A</span></p>
+                </div>
+                 <div id="outputActivity" class="absolute top-2 right-2 text-blue-500 text-sm font-bold opacity-0 transition-opacity duration-300">Displaying...</div>
+            </div>
+
+        </div>
+
+        <!-- Dashboard Visualization (Chart.js) -->
+        <div class="bg-white p-8 rounded-xl shadow-xl border-t-4 border-yellow-500 mt-12">
+            <h2 class="text-3xl font-semibold text-yellow-700 mb-6 text-center">Real-time Risk Dashboard</h2>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-xl font-medium text-gray-800 mb-4">Recent Risk Scores</h3>
+                    <canvas id="riskScoreChart" width="400" height="200"></canvas>
+                </div>
+                <div>
+                    <h3 class="text-xl font-medium text-gray-800 mb-4">Alert Level Distribution</h3>
+                    <canvas id="alertLevelChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Chart.js Initialization
+        const riskScoreCtx = document.getElementById('riskScoreChart').getContext('2d');
+        const alertLevelCtx = document.getElementById('alertLevelChart').getContext('2d');
+
+        const riskScoreChart = new Chart(riskScoreCtx, {
+            type: 'line',
+            data: {
+                labels: [], // Time labels
+                datasets: [{
+                    label: 'Risk Score',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        const alertLevelChart = new Chart(alertLevelCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Low', 'Medium', 'High', 'Critical'],
+                datasets: [{
+                    label: 'Number of Alerts',
+                    data: [0, 0, 0, 0], // Initial counts
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)', // Low
+                        'rgba(255, 205, 86, 0.6)', // Medium
+                        'rgba(255, 159, 64, 0.6)', // High
+                        'rgba(255, 99, 132, 0.6)'  // Critical
+                    ],
+                    borderColor: [
+                        'rgb(75, 192, 192)',
+                        'rgb(255, 205, 86)',
+                        'rgb(255, 159, 64)',
+                        'rgb(255, 99, 132)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Demo Logic
+        const simulateTransactionBtn = document.getElementById('simulateTransactionBtn');
+        const simulateBehaviorBtn = document.getElementById('simulateBehaviorBtn');
+        const resetDemoBtn = document.getElementById('resetDemoBtn');
+
+        const inputActivity = document.getElementById('inputActivity');
+        const processActivity = document.getElementById('processActivity');
+        const outputActivity = document.getElementById('outputActivity');
+
+        const riskScoreValue = document.getElementById('riskScoreValue');
+        const alertLevelValue = document.getElementById('alertLevelValue');
+
+        let transactionCount = 0;
+        let behaviorCount = 0;
+
+        function animatePipelineStep(elementId, isActive) {
+            document.getElementById(elementId).classList.toggle('active', isActive);
+        }
+
+        function showActivity(element, show) {
+            element.classList.toggle('opacity-0', !show);
+            element.classList.toggle('opacity-100', show);
+        }
+
+        function generateRandomRisk() {
+            const score = Math.floor(Math.random() * 90) + 10; // 10-99
+            let level = 'Low';
+            if (score > 75) level = 'Critical';
+            else if (score > 50) level = 'High';
+            else if (score > 25) level = 'Medium';
+            return { score, level };
+        }
+
+        function updateCharts(risk) {
+            // Update Risk Score Chart
+            const now = new Date();
+            const timeLabel = `${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            
+            riskScoreChart.data.labels.push(timeLabel);
+            riskScoreChart.data.datasets[0].data.push(risk.score);
+            
+            if (riskScoreChart.data.labels.length > 10) { // Keep last 10 points
+                riskScoreChart.data.labels.shift();
+                riskScoreChart.data.datasets[0].data.shift();
+            }
+            riskScoreChart.update();
+
+            // Update Alert Level Chart
+            const alertLevels = ['Low', 'Medium', 'High', 'Critical'];
+            const levelIndex = alertLevels.indexOf(risk.level);
+            if (levelIndex !== -1) {
+                alertLevelChart.data.datasets[0].data[levelIndex]++;
+                alertLevelChart.update();
+            }
+        }
+
+        async function runSimulation(type) {
+            resetPipelineAppearance(); // Clear previous states
+
+            // 1. Input Stage
+            showActivity(inputActivity, true);
+            if (type === 'transaction') {
+                document.getElementById('input1').classList.add('font-bold', 'text-blue-900');
+                document.getElementById('input2').classList.add('font-bold', 'text-blue-900');
+                transactionCount++;
+                document.getElementById('input1').innerText = `Bank Transaction Message (${transactionCount})`;
+            } else { // behavior
+                document.getElementById('input3').classList.add('font-bold', 'text-blue-900');
+                behaviorCount++;
+                document.getElementById('input3').innerText = `User Behavior Signals (${behaviorCount})`;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            showActivity(inputActivity, false);
+            animatePipelineStep('arrow1', true);
+
+            // 2. Process Stage
+            await new Promise(resolve => setTimeout(resolve, 700));
+            showActivity(processActivity, true);
+            document.getElementById('processStage').classList.add('scale-105'); // Simple process animation
+            document.querySelectorAll('.process-item').forEach(el => el.classList.add('font-bold', 'text-purple-900'));
+
+            const risk = generateRandomRisk();
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            showActivity(processActivity, false);
+            animatePipelineStep('arrow2', true);
+
+            // 3. Output Stage
+            await new Promise(resolve => setTimeout(resolve, 700));
+            showActivity(outputActivity, true);
+            document.getElementById('outputStage').classList.add('scale-105'); // Simple output animation
+
+            riskScoreValue.innerText = risk.score;
+            alertLevelValue.innerText = risk.level;
+            
+            // Apply color based on alert level
+            alertLevelValue.classList.remove('text-green-600', 'text-yellow-600', 'text-orange-600', 'text-red-600');
+            if (risk.level === 'Low') alertLevelValue.classList.add('text-green-600');
+            else if (risk.level === 'Medium') alertLevelValue.classList.add('text-yellow-600');
+            else if (risk.level === 'High') alertLevelValue.classList.add('text-orange-600');
+            else if (risk.level === 'Critical') alertLevelValue.classList.add('text-red-600');
+
+            updateCharts(risk);
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            showActivity(outputActivity, false);
+            
+            // Reset animations for next run, but keep text updates
+            document.getElementById('processStage').classList.remove('scale-105');
+            document.getElementById('outputStage').classList.remove('scale-105');
+            animatePipelineStep('arrow1', false);
+            animatePipelineStep('arrow2', false);
+        }
+
+        function resetPipelineAppearance() {
+            document.querySelectorAll('.input-item, .process-item, .output-item').forEach(el => {
+                el.classList.remove('font-bold', 'text-blue-900', 'text-purple-900', 'text-green-600', 'text-yellow-600', 'text-orange-600', 'text-red-600');
+            });
+            riskScoreValue.innerText = 'N/A';
+            alertLevelValue.innerText = 'N/A';
+            alertLevelValue.classList.remove('text-green-600', 'text-yellow-600', 'text-orange-600', 'text-red-600');
+            showActivity(inputActivity, false);
+            showActivity(processActivity, false);
+            showActivity(outputActivity, false);
+            animatePipelineStep('arrow1', false);
+            animatePipelineStep('arrow2', false);
+
+            document.getElementById('input1').innerText = `Bank Transaction Message`;
+            document.getElementById('input3').innerText = `User Behavior Signals`;
+        }
+
+
+        simulateTransactionBtn.addEventListener('click', () => runSimulation('transaction'));
+        simulateBehaviorBtn.addEventListener('click', () => runSimulation('behavior'));
+        resetDemoBtn.addEventListener('click', () => {
+            transactionCount = 0;
+            behaviorCount = 0;
+            resetPipelineAppearance();
+            riskScoreChart.data.labels = [];
+            riskScoreChart.data.datasets[0].data = [];
+            riskScoreChart.update();
+            alertLevelChart.data.datasets[0].data = [0, 0, 0, 0];
+            alertLevelChart.update();
+        });
+
+        // Initial reset for a clean start
+        resetPipelineAppearance();
+    </script>
+</body>
+</html>
