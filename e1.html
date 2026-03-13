@@ -1,0 +1,90 @@
+graph TB
+
+%% 全域樣式設定
+classDef default fill:#1a1a1a,stroke:#ffffff,color:#ffffff,stroke-width:2px;
+classDef hqNode fill:#2c3e50,stroke:#ffffff,color:#ffffff,stroke-width:2px;
+classDef regionalNode fill:#34495e,stroke:#ffffff,color:#ffffff,stroke-width:2px;
+classDef edgeNode fill:#2c3e50,stroke:#ffffff,color:#ffffff,stroke-width:2px;
+classDef bypassNode fill:#922b21,stroke:#ffffff,color:#ffffff,stroke-width:2px,stroke-dasharray: 5 5;
+
+%% 署本部
+subgraph HQ [署本部 / 核心指揮部 - 10G 高速核心]
+direction TB
+
+C1[中心端運算伺服器<br/>CAR-4060 / Dual Xeon]
+
+C2[中央儲存系統<br/>3PB JBOD 影像儲存]
+
+C3[管理操作臺<br/>RUBY-D814 / T1000 獨顯]
+
+C5{核心網路交換主機<br/>ANS-2141 / 10G SFP+}
+
+C1 --- C5
+C2 --- C5
+C3 --- C5
+
+end
+
+%% 分署
+subgraph Regional [分署 / 巡防區 - 中繼管理層]
+direction TB
+
+R1[網安防火牆<br/>ANS-9A44F]
+
+R2{COP 網管交換器<br/>24G + 4x10G}
+
+R3[區域監控操作臺<br/>RUBY-D814]
+
+R1 --- R2
+R2 --- R3
+
+BP1{{Hardware Bypass<br/>設備故障自動導通}}
+
+R1 -.-> BP1 -.-> R2
+
+end
+
+%% 前端
+subgraph Edge [前端岸際站臺 - 監控與存儲層]
+direction TB
+
+E1[紅外線 / 可見光攝影機<br/>PTZ 雲臺]
+
+E2{PoE 網管交換器<br/>COP Switch}
+
+E3[前端操作主機<br/>WEBS-45J3]
+
+E4[錄影存儲伺服器<br/>RUBY-D814 / 25TB RAID]
+
+E5[站臺防火牆 / 路由器<br/>Security Gateway]
+
+E6[RS-485 搖桿控制<br/>緊急控制介面]
+
+E1 --- E2
+E2 --- E3
+E2 --- E4
+E4 --- E5
+
+E6 -. "RS-485 實體控制" .-> E1
+
+BP2{{Bypass 備援路徑}}
+
+E5 -.-> BP2 -.-> E4
+
+end
+
+%% 跨區域鏈路
+E5 ==>|VPN 專線 / 光纖| R1
+R1 ==>|10G 骨幹鏈路| C5
+
+%% SOC
+SOC((資安監控中心 SOC))
+
+C5 --- SOC
+R1 --- SOC
+
+%% 套用樣式
+class HQ,C1,C2,C3,C5 hqNode;
+class Regional,R1,R2,R3 regionalNode;
+class Edge,E1,E2,E3,E4,E5 edgeNode;
+class E6,BP1,BP2 bypassNode;
